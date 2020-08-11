@@ -1,0 +1,31 @@
+{
+  "name": "rtree",
+  "version": "1.0.0",
+  "description": "An implementation of the R-Tree data structure",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zacharilius/RTree.git"
+  },
+  "keywords": [
+    "node",
+    "R-Tree",
+    "RTree",
+    "spatial",
+    "gis",
+    "map"
+  ],
+  "author": "zacharilius",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Zacharilius/RTree/issues"
+  },
+  "homepage": "https://github.com/Zacharilius/RTree#readme",
+  "dependencies": {
+    "typescript": "^3.9.7"
+  }
+}
