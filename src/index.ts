@@ -51,15 +51,13 @@ export default class RTree {
         }
 
         // The node's children are equal to the maxEntries.
+        // TODO: Rename canInsertLeafNode to childrenAreLeafNodes.
         if (currentNode.canInsertLeafNode()) {
-            
-            // currentNode is full and are children are leaf nodes.
+            // currentNode is full and children are leaf nodes.
             // then add children to new internal nodes.
         }
 
-        // If node is full and the children are leaf nodes, then the children leaf nodes need
-        // 
-
+        currentNode.splitChildren();
 
         // Find child that has space.
         // Insert as child of current node.
@@ -73,21 +71,6 @@ export default class RTree {
         
 
         // Does currentNode hold Leaf or Internal Nodes
-    }
-
-    private splitNode(currentNode: InternalNode) {
-        const children = currentNode.getChildren();
-        const newInternalNode1 = new InternalNode()
-        children.splice(0, children.length / 2).forEach((childNode: InternalNode | LeafNode) => {
-            newInternalNode1.insert(childNode)
-        });
-
-        const newInternalNode2 = new InternalNode()
-        children.splice(children.length / 2, children.length).forEach((childNode: InternalNode | LeafNode) => {
-            newInternalNode2.insert(childNode)
-        });
-        
-        const rightLeafNode = new InternalNode()
     }
 
     private getBoundingBoxForPoint (point: Point): BoundingBox {
