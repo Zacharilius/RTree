@@ -54,7 +54,6 @@ export default class RTree {
             return;
         }
 
-        
         // Recursively insert.
         // Find the child node with the bounding box that will require the least adjustment.
     }

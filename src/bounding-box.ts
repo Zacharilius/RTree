@@ -19,8 +19,12 @@ export class BoundingBox {
     }
 
     public getBoundingBoxArea(): number {
-        const width: number = this.boundingBox.maxX - this.boundingBox.minX;
-        const height: number = this.boundingBox.maxY - this.boundingBox.minY;
+        return this.calculateBoundingBoxArea(this.boundingBox);
+    }
+
+    private calculateBoundingBoxArea(boundingBox: BoundingBoxDef): number {
+        const width: number = boundingBox.maxX - boundingBox.minX;
+        const height: number = boundingBox.maxY - boundingBox.minY;
         const area = width * height;
 
         // area is Infinity for empty bounding boxes. This doesn't make sense
@@ -31,18 +35,34 @@ export class BoundingBox {
         return area
     }
 
-    public updateBoundingBoxForPoint (point: Point) {
+    public getBoundingBoxAreaIfAddBoundingBox(boundingBox: BoundingBox): number {
+        const newBoundingBoxAfterMerge = this.mergeBoundingBoxes(this.boundingBox, boundingBox.boundingBox);
+        const areaAfter = this.calculateBoundingBoxArea(newBoundingBoxAfterMerge);
+        return areaAfter;
+    }
+
+    public updateBoundingBoxForPoint (point: Point): void {
         this.boundingBox.minX = Math.min(this.boundingBox.minX, point.x);
         this.boundingBox.minY = Math.min(this.boundingBox.minY, point.y);
         this.boundingBox.maxX = Math.max(this.boundingBox.maxX, point.x);
         this.boundingBox.maxY = Math.max(this.boundingBox.maxY, point.y);
     }
 
-    public updateBoundingBoxForBoundingBox (boundingBox: BoundingBox) {
-        this.boundingBox.minX = Math.min(this.boundingBox.minX, boundingBox.boundingBox.minX);
-        this.boundingBox.minY = Math.min(this.boundingBox.minY, boundingBox.boundingBox.minY);
-        this.boundingBox.maxX = Math.max(this.boundingBox.maxX, boundingBox.boundingBox.maxX);
-        this.boundingBox.maxY = Math.max(this.boundingBox.maxY, boundingBox.boundingBox.maxY);
+    public updateBoundingBoxForBoundingBox (boundingBox: BoundingBox): void {
+        const mergeBoundingBox = this.mergeBoundingBoxes(this.boundingBox, boundingBox.boundingBox);
+        this.boundingBox.minX = mergeBoundingBox.minX;
+        this.boundingBox.minY = mergeBoundingBox.minY;
+        this.boundingBox.maxX = mergeBoundingBox.maxX;
+        this.boundingBox.maxY = mergeBoundingBox.maxY;
+    }
+
+    private mergeBoundingBoxes (boundingBoxDef1: BoundingBoxDef, boundingBoxDef2: BoundingBoxDef): BoundingBoxDef {
+        return {
+            minX: Math.min(boundingBoxDef1.minX, boundingBoxDef2.minX),
+            minY: Math.min(boundingBoxDef1.minY, boundingBoxDef2.minY),
+            maxX: Math.max(boundingBoxDef1.maxX, boundingBoxDef2.maxX),
+            maxY: Math.max(boundingBoxDef1.maxY, boundingBoxDef2.maxY),
+        } as BoundingBoxDef
     }
 }
 

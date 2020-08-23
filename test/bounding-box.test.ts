@@ -30,7 +30,7 @@ describe('BoundingBox test', () => {
         });
     });
 
-    describe.only('updateBoundingBoxForPoint', () => {
+    describe('getBoundingBoxArea', () => {
         it('should calculate correctly on constructor init', () => {
             const boundingBox = new BoundingBox();
             expect(boundingBox.getBoundingBoxArea()).to.equal(0);
@@ -56,6 +56,49 @@ describe('BoundingBox test', () => {
             };
             boundingBox.updateBoundingBoxForPoint(point2)
             expect(boundingBox.getBoundingBoxArea()).to.equal(25);
+        });
+    });
+
+    describe('getBoundingBoxAreaIfAddBoundingBox', () => {
+        it('should calculate correctly if point is outside of the current bounding box', () => {
+            const point: Point = {
+                x: 0,
+                y: 5
+            };
+            const boundingBox = BoundingBox.getBoundingBoxForPoint(point);
+            const point2: Point = {
+                x: 50,
+                y: 50
+            };
+            boundingBox.updateBoundingBoxForPoint(point2);
+
+            const pointOutsideOtherBoundingBox: Point = {
+                x: 55,
+                y: 55
+            };
+            const boundingBox2 = BoundingBox.getBoundingBoxForPoint(pointOutsideOtherBoundingBox);
+
+            expect(boundingBox.getBoundingBoxAreaIfAddBoundingBox(boundingBox2)).to.equal(2750);
+        });
+        it('should calculate correctly if point is inside of the current bounding box', () => {
+            const point: Point = {
+                x: 0,
+                y: 5
+            };
+            const boundingBox = BoundingBox.getBoundingBoxForPoint(point);
+            const point2: Point = {
+                x: 50,
+                y: 50
+            };
+            boundingBox.updateBoundingBoxForPoint(point2);
+
+            const pointOutsideOtherBoundingBox: Point = {
+                x: 22,
+                y: 22
+            };
+            const boundingBox2 = BoundingBox.getBoundingBoxForPoint(pointOutsideOtherBoundingBox);
+
+            expect(boundingBox.getBoundingBoxAreaIfAddBoundingBox(boundingBox2)).to.equal(2250);
         });
     });
 
