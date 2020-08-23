@@ -18,7 +18,7 @@ export default class RTree {
     }
 
     public insert (point: Point): void {
-        const boundingBox: BoundingBox = this.getBoundingBoxForPoint(point);
+        const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
         const newLeafNode = new LeafNode(point, boundingBox);
 
         // Recursively find the best position
@@ -32,10 +32,10 @@ export default class RTree {
 
     private _insert (currentNode: InternalNode, newNode: LeafNode) {
         const currentNodeChildren = currentNode.getChildren();
-        // If currentNode is empty or has space
+        // If currentNode has space
         if (currentNodeChildren.length < this.maxEntries) {
-            // If children is empty or they are leaf nodes,
-            if (currentNode.canInsertLeafNode()) {
+            // children is empty or they are leaf nodes,
+            if (currentNode.childrenAreLeafNodes()) {
                 currentNode.insert(newNode);
                 return
             } else {
@@ -48,13 +48,11 @@ export default class RTree {
         }
 
         // The node's children are equal to the maxEntries.
-        // TODO: Rename canInsertLeafNode to childrenAreLeafNodes.
-        if (currentNode.canInsertLeafNode()) {
-            // currentNode is full and children are leaf nodes.
-            // then add children to new internal nodes.
+        if (currentNode.childrenAreLeafNodes()) {
+            currentNode.splitChildren();
         }
 
-        currentNode.splitChildren();
+        
 
         // Find child that has space.
         // Insert as child of current node.
@@ -66,14 +64,5 @@ export default class RTree {
 
 
         // Does currentNode hold Leaf or Internal Nodes
-    }
-
-    private getBoundingBoxForPoint (point: Point): BoundingBox {
-        return {
-            minX: point.x,
-            minY: point.y,
-            maxX: point.x,
-            maxY: point.y,
-        };
     }
 }

@@ -9,16 +9,15 @@ abstract class Node {
             this.boundingBox = boundingBox;
         } else {
             // Set the bounding box to values that will always be overridden.
-            this.boundingBox = {
-                minX: +Infinity,
-                minY: +Infinity,
-                maxX: -Infinity,
-                maxY: -Infinity,
-            };
+            this.boundingBox = new BoundingBox();
         }
     }
 
     abstract isLeafNode (): boolean;
+
+    getBoundingBox (): BoundingBox {
+        return this.boundingBox;
+    }
 }
 
 export class InternalNode extends Node {
@@ -34,7 +33,7 @@ export class InternalNode extends Node {
         // Typescript recognizes that it's possible to mix InternalNode and
         // LeafNode here.
         this.childNodes.push(node as any);
-        this.updateBoundingBox(node);
+        this.updateBoundingBoxOnInsert(node);
     }
 
     public remove(node: InternalNode | LeafNode) {
@@ -61,14 +60,11 @@ export class InternalNode extends Node {
         });
     }
 
-    private updateBoundingBox(node: InternalNode | LeafNode) {
-        this.boundingBox.minX = Math.min(this.boundingBox.minX, node.boundingBox.minX);
-        this.boundingBox.minY = Math.min(this.boundingBox.minY, node.boundingBox.minY);
-        this.boundingBox.maxX = Math.max(this.boundingBox.maxX, node.boundingBox.maxX);
-        this.boundingBox.maxY = Math.max(this.boundingBox.maxY, node.boundingBox.maxY);
+    private updateBoundingBoxOnInsert(node: InternalNode | LeafNode) {
+        this.boundingBox.updateBoundingBoxForBoundingBox(node.boundingBox);
     }
 
-    public canInsertLeafNode(): boolean {
+    public childrenAreLeafNodes(): boolean {
         return this.getChildren().every((node: Node) => node.isLeafNode());
     }
 
