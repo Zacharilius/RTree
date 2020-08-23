@@ -56,9 +56,9 @@ export class InternalNode extends Node {
         children.forEach((childLeafNode) => {
             this.remove(childLeafNode);
             const newInternalNode = new InternalNode();
-            newInternalNode.insert(childLeafNode)
             this.insert(newInternalNode);
-        })
+            newInternalNode.insert(childLeafNode)
+        });
     }
 
     private updateBoundingBox(node: InternalNode | LeafNode) {

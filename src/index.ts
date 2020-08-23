@@ -28,9 +28,6 @@ export default class RTree {
         //     this.root.insert(newLeafNode);
         //     return;
         // }
-
-
-        
     }
 
     private _insert (currentNode: InternalNode, newNode: LeafNode) {
@@ -66,9 +63,7 @@ export default class RTree {
             // Create 2 internal nodes with the 2 most disimilar children
             // Add children to the node they are most similar to.
         // else // current node children are internal nodes
-            
 
-        
 
         // Does currentNode hold Leaf or Internal Nodes
     }
