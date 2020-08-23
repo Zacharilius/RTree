@@ -82,11 +82,6 @@ const createLeafNode = (): LeafNode => {
         x: 5,
         y: 10
     };
-    const boundingBox: BoundingBox = {
-        minX: 1,
-        minY: 2,
-        maxX: 3,
-        maxY: 4,
-    }
+    const boundingBox = new BoundingBox();
     return new LeafNode(point, boundingBox);
 }

@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 
 import { Point } from '../src/point';
-import RTree from '../src/index';
+import RTree from '../src/rtree';
 
 describe('RTree test', () => {
     describe('constructor', () => {
