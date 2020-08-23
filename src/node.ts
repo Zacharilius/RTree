@@ -37,6 +37,30 @@ export class InternalNode extends Node {
         this.updateBoundingBox(node);
     }
 
+    public remove(node: InternalNode | LeafNode) {
+        // TODO: Figure out something here.
+        // Typescript recognizes that it's possible to mix InternalNode and
+        // LeafNode here.
+        const children: any = this.getChildren();
+        const index = children.indexOf(node, 0);
+        if (index > -1) {
+            this.getChildren().splice(index, 1);
+        }
+        // Do I need to update bounding box??? Maybe.
+    }
+
+    // What is the best way to do this?
+    public splitChildren() {
+        // TODO: Verify that children are LeafNodes
+        const children = this.getChildren() as Array<LeafNode>;
+        children.forEach((childLeafNode) => {
+            this.remove(childLeafNode);
+            const newInternalNode = new InternalNode();
+            newInternalNode.insert(childLeafNode)
+            this.insert(newInternalNode);
+        })
+    }
+
     private updateBoundingBox(node: InternalNode | LeafNode) {
         this.boundingBox.minX = Math.min(this.boundingBox.minX, node.boundingBox.minX);
         this.boundingBox.minY = Math.min(this.boundingBox.minY, node.boundingBox.minY);
@@ -49,15 +73,11 @@ export class InternalNode extends Node {
     }
 
     public isEmpty(): boolean {
-        return this.getNumChildren() === 0;
+        return this.getChildren().length === 0;
     }
 
     public getChildren(): Array<InternalNode> | Array<LeafNode> {
         return this.childNodes
-    }
-
-    public getNumChildren(): number {
-        return this.childNodes.length;
     }
 
     public isLeafNode () {
