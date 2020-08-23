@@ -23,15 +23,10 @@ export default class RTree {
 
         // Recursively find the best position
         this._insert(this.root, newLeafNode)
-        // // First if the root node has space.
-        // if (!this.isNodeFull(this.root)) {
-        //     this.root.insert(newLeafNode);
-        //     return;
-        // }
     }
 
-    private _insert (currentNode: InternalNode, newNode: LeafNode) {
-        const currentNodeChildren = currentNode.getChildren();
+    private _insert (currentNode: InternalNode, newNode: LeafNode): void {
+        let currentNodeChildren = currentNode.getChildren();
         // If currentNode has space
         if (currentNodeChildren.length < this.maxEntries) {
             // children is empty or they are leaf nodes,
@@ -50,19 +45,17 @@ export default class RTree {
         // The node's children are equal to the maxEntries.
         if (currentNode.childrenAreLeafNodes()) {
             currentNode.splitChildren();
+            currentNodeChildren = currentNode.getChildren();
+            const firstChild = currentNodeChildren[0]
+            if (firstChild.isLeafNode()) {
+                throw Error('Expected node to be InternalNode');
+            }
+            this._insert(firstChild as InternalNode, newNode);
+            return;
         }
 
         
-
-        // Find child that has space.
-        // Insert as child of current node.
-        // if currentNode children are leaf nodes
-            // split children into 2 internal nodes
-            // Create 2 internal nodes with the 2 most disimilar children
-            // Add children to the node they are most similar to.
-        // else // current node children are internal nodes
-
-
-        // Does currentNode hold Leaf or Internal Nodes
+        // Recursively insert.
+        // Find the child node with the bounding box that will require the least adjustment.
     }
 }

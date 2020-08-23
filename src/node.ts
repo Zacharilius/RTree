@@ -45,7 +45,7 @@ export class InternalNode extends Node {
         if (index > -1) {
             this.getChildren().splice(index, 1);
         }
-        // Do I need to update bounding box??? Maybe.
+        // TODO: Update bounding box.
     }
 
     // What is the best way to do this?

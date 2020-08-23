@@ -1,7 +1,8 @@
 import { Point } from "./point";
 
 export class BoundingBox {
-    private boundingBox: BoundingBoxDef;
+    public readonly boundingBox: BoundingBoxDef;
+
     constructor () {
         this.boundingBox = {
             minX: +Infinity,
@@ -10,10 +11,24 @@ export class BoundingBox {
             maxY: -Infinity,
         };
     }
+
     static getBoundingBoxForPoint (point: Point) {
         const boundingBox = new BoundingBox();
         boundingBox.updateBoundingBoxForPoint(point);
         return boundingBox;
+    }
+
+    public getBoundingBoxArea(): number {
+        const width: number = this.boundingBox.maxX - this.boundingBox.minX;
+        const height: number = this.boundingBox.maxY - this.boundingBox.minY;
+        const area = width * height;
+
+        // area is Infinity for empty bounding boxes. This doesn't make sense
+        // so reinterpret to 0
+        if (area === Infinity) {
+            return 0;
+        }
+        return area
     }
 
     public updateBoundingBoxForPoint (point: Point) {
