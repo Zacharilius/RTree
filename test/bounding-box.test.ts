@@ -59,6 +59,70 @@ describe('BoundingBox test', () => {
         });
     });
 
+    describe('isBoundingBoxInBoundingBox', () => {
+        it('should return true if bounding box is entirely inside.', () => {
+            const boundingBox = BoundingBox.getBoundingBoxForPoint({
+                x: 0,
+                y: 0
+            });
+            boundingBox.updateBoundingBoxForPoint({
+                x: 100,
+                y: 100
+            });
+
+            const targetBoundingBox = BoundingBox.getBoundingBoxForPoint({
+                x: 25,
+                y: 25
+            });
+            targetBoundingBox.updateBoundingBoxForPoint({
+                x: 50,
+                y: 50
+            });
+            expect(boundingBox.isBoundingBoxInBoundingBox(targetBoundingBox)).to.be.true;
+        });
+        it('should return true if bounding box is partially inside.', () => {
+            const boundingBox = BoundingBox.getBoundingBoxForPoint({
+                x: 0,
+                y: 0
+            });
+            boundingBox.updateBoundingBoxForPoint({
+                x: 100,
+                y: 100
+            });
+
+            const targetBoundingBox = BoundingBox.getBoundingBoxForPoint({
+                x: 75,
+                y: 75
+            });
+            targetBoundingBox.updateBoundingBoxForPoint({
+                x: 125,
+                y: 125
+            });
+            expect(boundingBox.isBoundingBoxInBoundingBox(targetBoundingBox)).to.be.true;
+        });
+        it('should return false if bounding box is entire outside.', () => {
+            const boundingBox = BoundingBox.getBoundingBoxForPoint({
+                x: 0,
+                y: 0
+            });
+            boundingBox.updateBoundingBoxForPoint({
+                x: 100,
+                y: 100
+            });
+
+            const targetBoundingBox = BoundingBox.getBoundingBoxForPoint({
+                x: 101,
+                y: 101
+            });
+            targetBoundingBox.updateBoundingBoxForPoint({
+                x: 125,
+                y: 125
+            });
+
+            expect(boundingBox.isBoundingBoxInBoundingBox(targetBoundingBox)).to.be.false;
+        });
+    });
+
     describe('getBoundingBoxAreaIncreaseIfAddBoundingBox', () => {
         it('should calculate correctly if point is outside of the current bounding box', () => {
             const point: Point = {

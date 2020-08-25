@@ -21,21 +21,22 @@ export default class RTree {
     // return all points on a bounding box.
     public search (point: Point): Array<Point> {
         const foundPoints: Array<Point> = [];
-        this._search(this.root, point, foundPoints);
+        const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
+        this._search(this.root, boundingBox, foundPoints);
         return foundPoints;
     }
 
-    private _search (node: InternalNode | LeafNode, point: Point, foundPoints: Array<Point>) {
+    private _search (node: InternalNode | LeafNode, boundingBox: BoundingBox, foundPoints: Array<Point>) {
         if (node.isLeafNode()) {
             node = node as LeafNode
-            if (node.boundingBox.isPointInBoundingBox(point)) {
+            if (node.boundingBox.isBoundingBoxInBoundingBox(boundingBox)) {
                 foundPoints.push(node.getData());
             }
         } else {
             node = node as InternalNode
             node.getChildren().forEach((childNode: InternalNode | LeafNode) => {
-                if (childNode.boundingBox.isPointInBoundingBox(point)) {
-                    this._search(childNode, point, foundPoints);
+                if (childNode.boundingBox.isBoundingBoxInBoundingBox(boundingBox)) {
+                    this._search(childNode, boundingBox, foundPoints);
                 }
             });
         }
