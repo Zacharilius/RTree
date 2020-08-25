@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint -c .eslintrc.js src/**/*.ts test/**/*.ts --quiet",
-    "test": "nyc mocha --require ts-node/register test/**/*.test.ts"
+    "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
+    "verify": "npm run lint && npm run test"
   },
   "repository": {
     "type": "git",

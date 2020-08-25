@@ -17,6 +17,30 @@ export default class RTree {
         this.root = new InternalNode();
     }
 
+    // FIXME: I think search needs to search based on bounding box... and then
+    // return all points on a bounding box.
+    public search (point: Point): Array<Point> {
+        const foundPoints: Array<Point> = [];
+        this._search(this.root, point, foundPoints);
+        return foundPoints;
+    }
+
+    private _search (node: InternalNode | LeafNode, point: Point, foundPoints: Array<Point>) {
+        if (node.isLeafNode()) {
+            node = node as LeafNode
+            if (node.boundingBox.isPointInBoundingBox(point)) {
+                foundPoints.push(node.getData());
+            }
+        } else {
+            node = node as InternalNode
+            node.getChildren().forEach((childNode: InternalNode | LeafNode) => {
+                if (childNode.boundingBox.isPointInBoundingBox(point)) {
+                    this._search(childNode, point, foundPoints);
+                }
+            });
+        }
+    }
+
     public insert (point: Point): void {
         const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
         const newLeafNode = new LeafNode(point, boundingBox);
@@ -26,7 +50,7 @@ export default class RTree {
     }
 
     private _insert (currentNode: InternalNode, newNode: LeafNode): void {
-        let currentNodeChildren = currentNode.getChildren();
+        let currentNodeChildren: Array<InternalNode> | Array<LeafNode> = currentNode.getChildren();
         // If currentNode has space
         if (currentNodeChildren.length < this.maxEntries) {
             // children is empty or they are leaf nodes,
@@ -42,12 +66,13 @@ export default class RTree {
             }
         }
 
-        // The node's children are equal to the maxEntries.
+        // The all nodes are leaf nodes and node is full then split each child
+        // leaf node into its own internal node.
         if (currentNode.childrenAreLeafNodes()) {
             currentNode.splitChildren();
             currentNodeChildren = currentNode.getChildren();
             const firstChild = currentNodeChildren[0]
-            if (firstChild.isLeafNode()) {
+            if (!firstChild || firstChild.isLeafNode()) {
                 throw Error('Expected node to be InternalNode');
             }
             this._insert(firstChild as InternalNode, newNode);
@@ -56,5 +81,27 @@ export default class RTree {
 
         // Recursively insert.
         // Find the child node with the bounding box that will require the least adjustment.
+        currentNodeChildren = currentNodeChildren as Array<InternalNode>;
+        const boundingBoxInfos: Array<any> = currentNodeChildren.map((node: InternalNode) => {
+            return {
+                node: node,
+                area: node.boundingBox.getBoundingBoxAreaIncreaseIfAddBoundingBox(newNode.boundingBox)
+            };
+        });
+
+        // sort so smallest area is first.
+        boundingBoxInfos.sort((a, b) => {
+            if (a.area > b.area) {
+                return -1;
+            }
+            if (a.area < b.area) {
+                return 1;
+            }
+            return 0;
+        });
+
+        // Insert in the child node that would have the least bounding box area
+        // increase.
+        this._insert(boundingBoxInfos[0], newNode);
     }
 }

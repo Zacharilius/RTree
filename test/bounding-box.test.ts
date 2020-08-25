@@ -59,7 +59,7 @@ describe('BoundingBox test', () => {
         });
     });
 
-    describe('getBoundingBoxAreaIfAddBoundingBox', () => {
+    describe('getBoundingBoxAreaIncreaseIfAddBoundingBox', () => {
         it('should calculate correctly if point is outside of the current bounding box', () => {
             const point: Point = {
                 x: 0,
@@ -78,7 +78,7 @@ describe('BoundingBox test', () => {
             };
             const boundingBox2 = BoundingBox.getBoundingBoxForPoint(pointOutsideOtherBoundingBox);
 
-            expect(boundingBox.getBoundingBoxAreaIfAddBoundingBox(boundingBox2)).to.equal(2750);
+            expect(boundingBox.getBoundingBoxAreaIncreaseIfAddBoundingBox(boundingBox2)).to.equal(500);
         });
         it('should calculate correctly if point is inside of the current bounding box', () => {
             const point: Point = {
@@ -98,7 +98,7 @@ describe('BoundingBox test', () => {
             };
             const boundingBox2 = BoundingBox.getBoundingBoxForPoint(pointOutsideOtherBoundingBox);
 
-            expect(boundingBox.getBoundingBoxAreaIfAddBoundingBox(boundingBox2)).to.equal(2250);
+            expect(boundingBox.getBoundingBoxAreaIncreaseIfAddBoundingBox(boundingBox2)).to.equal(0);
         });
     });
 
