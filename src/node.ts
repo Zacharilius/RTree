@@ -14,10 +14,6 @@ abstract class Node {
     }
 
     abstract isLeafNode (): boolean;
-
-    getBoundingBox (): BoundingBox {
-        return this.boundingBox;
-    }
 }
 
 export class InternalNode extends Node {
@@ -36,27 +32,33 @@ export class InternalNode extends Node {
         this.updateBoundingBoxOnInsert(node);
     }
 
-    public remove(node: InternalNode | LeafNode) {
-        // TODO: Figure out something here.
-        // Typescript recognizes that it's possible to mix InternalNode and
-        // LeafNode here.
-        const children: any = this.getChildren();
-        const index = children.indexOf(node, 0);
-        if (index > -1) {
-            this.getChildren().splice(index, 1);
-        }
-        // Do I need to update bounding box??? Maybe.
-    }
+    // public remove(node: InternalNode | LeafNode) {
+    //     // TODO: Figure out something here.
+    //     // Typescript recognizes that it's possible to mix InternalNode and
+    //     // LeafNode here.
+    //     const children: any = this.getChildren();
+    //     const index = children.indexOf(node, 0);
+    //     if (index > -1) {
+    //         this.getChildren().splice(index, 1);
+    //     }
+    //     // TODO: Update bounding box.
+    // }
 
-    // What is the best way to do this?
     public splitChildren() {
         // TODO: Verify that children are LeafNodes
-        const children = this.getChildren() as Array<LeafNode>;
-        children.forEach((childLeafNode) => {
-            this.remove(childLeafNode);
+        const children: Array<LeafNode> = this.getChildren() as Array<LeafNode>;
+
+        // Remove all leaf nodes;
+        const leafChildren: Array<LeafNode> = [];
+        while (children.length > 0) {
+            leafChildren.push(children.shift() as LeafNode)
+        }
+
+        // Insert new Internal nodes, each with a leaf node.
+        leafChildren.forEach(leafNode => {
             const newInternalNode = new InternalNode();
             this.insert(newInternalNode);
-            newInternalNode.insert(childLeafNode)
+            newInternalNode.insert(leafNode)
         });
     }
 
@@ -91,5 +93,9 @@ export class LeafNode extends Node {
 
     public isLeafNode () {
         return true;
+    }
+
+    public getData () {
+        return this.data;
     }
 }

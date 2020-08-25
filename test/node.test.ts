@@ -13,6 +13,14 @@ describe('Node test', () => {
                 expect(leafNode.isLeafNode()).to.be.true;
             });
         });
+        describe('getData', () => {
+            it('returns the correct data', () => {
+                const x: number = 22;
+                const y: number = 33;
+                const leafNode = createLeafNode(x, y);
+                expect(leafNode.getData()).to.deep.equal({ x, y });
+            });
+        });
     });
     describe('InternalNode', () => {
         describe('constructor', () => {
@@ -36,18 +44,40 @@ describe('Node test', () => {
                 expect(internalNodeRoot.getChildren()).to.deep.equal([leafNodeChild])
             });
         });
-        describe('remove', () => {
-            it('can remove LeafNode from InternalNode', () => {
-                const internalNode = new InternalNode();
-                const leafNode = createLeafNode();
-                internalNode.insert(leafNode);
-                internalNode.remove(leafNode);
-                expect(internalNode.getChildren()).to.deep.equal([])
-            });
-        });
+        // describe('remove', () => {
+        //     it('can remove LeafNode from InternalNode', () => {
+        //         const internalNode = new InternalNode();
+        //         const leafNode = createLeafNode();
+        //         internalNode.insert(leafNode);
+        //         internalNode.remove(leafNode);
+        //         expect(internalNode.getChildren()).to.deep.equal([])
+        //     });
+        // });
 
         describe('splitChildren', () => {
-            // TODO
+            it('should create a new internal node and insert the leaf node in it.', () => {
+                const internalNode = new InternalNode();
+
+                // Create 4 nodes nad then insert into the internal nodes.
+                const leafNodeCount = 4;
+                let leafNodes: Array<LeafNode> = [];
+                for (let i = 0; i < leafNodeCount; i++) {
+                    leafNodes.push(createLeafNode(i, i));
+                    internalNode.insert(leafNodes[i]);
+                }
+
+                // Should have 4 leaf nodes
+                expect(internalNode.getChildren().length).to.equal(4);
+
+                internalNode.splitChildren();
+
+                // Should have 4 internal nodes nodes
+                expect(internalNode.getChildren().length).to.equal(4);
+                internalNode.getChildren().forEach((thisInternalNode: any, index: number) => {
+                    expect(thisInternalNode.isLeafNode()).to.be.false;
+                    expect(thisInternalNode.getChildren()[0]).to.equal(leafNodes[index]);
+                });
+            });
         });
 
         describe('isEmpty', () => {
@@ -77,10 +107,10 @@ describe('Node test', () => {
     });
 });
 
-const createLeafNode = (): LeafNode => {
+const createLeafNode = (x: number = 5, y: number = 10): LeafNode => {
     const point: Point = {
-        x: 5,
-        y: 10
+        x,
+        y
     };
     const boundingBox = new BoundingBox();
     return new LeafNode(point, boundingBox);
