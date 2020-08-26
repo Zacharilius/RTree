@@ -35,20 +35,26 @@ export class BoundingBox {
         return area
     }
 
-    public isPointInBoundingBox (point: Point) {
-        return (
-            point.x <= this.boundingBox.maxX &&
-            point.x >= this.boundingBox.minX &&
-            point.y <= this.boundingBox.minY &&
-            point.y <= this.boundingBox.maxY
-        )
-    }
-
     public getBoundingBoxAreaIncreaseIfAddBoundingBox(boundingBox: BoundingBox): number {
         const beforeArea = this.getBoundingBoxArea();
         const newBoundingBoxAfterMerge = this.mergeBoundingBoxes(this.boundingBox, boundingBox.boundingBox);
         const areaAfter = this.calculateBoundingBoxArea(newBoundingBoxAfterMerge);
         return areaAfter - beforeArea;
+    }
+
+    // Determines if the target bounding box is inside this bounding box.
+    public isBoundingBoxInBoundingBox (targetBoundingBox: BoundingBox) {
+        return (
+            (
+                targetBoundingBox.boundingBox.maxX >= this.boundingBox.minX &&
+                targetBoundingBox.boundingBox.minX <= this.boundingBox.maxX
+            )
+            &&
+            (
+                targetBoundingBox.boundingBox.maxY >= this.boundingBox.minY &&
+                targetBoundingBox.boundingBox.minY <= this.boundingBox.maxY
+            )
+        )
     }
 
     public updateBoundingBoxForPoint (point: Point): void {
