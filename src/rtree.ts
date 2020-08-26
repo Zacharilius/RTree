@@ -67,6 +67,13 @@ export default class RTree {
             }
         }
 
+        // TODO: Verify if the bounding box is being updated everywhere it needs
+        // to be updated.
+
+        // Before inserting in the child of the current node. Update the current
+        // node's bounding box.
+        currentNode.boundingBox.updateBoundingBoxForBoundingBox(newNode.boundingBox);
+
         // The all nodes are leaf nodes and node is full then split each child
         // leaf node into its own internal node.
         if (currentNode.childrenAreLeafNodes()) {
