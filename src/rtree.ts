@@ -19,9 +19,8 @@ export default class RTree {
 
     // FIXME: I think search needs to search based on bounding box... and then
     // return all points on a bounding box.
-    public search (point: Point): Array<Point> {
+    public search (boundingBox: BoundingBox): Array<Point> {
         const foundPoints: Array<Point> = [];
-        const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
         this._search(this.root, boundingBox, foundPoints);
         return foundPoints;
     }

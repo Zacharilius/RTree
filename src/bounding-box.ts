@@ -18,6 +18,14 @@ export class BoundingBox {
         return boundingBox;
     }
 
+    static getBoundingBoxForBoundingBoxValues(minX: number, minY: number, maxX: number, maxY: number) {
+        const boundingBox = new BoundingBox();
+        boundingBox.boundingBox.minX = minX;
+        boundingBox.boundingBox.minY = minY;
+        boundingBox.boundingBox.maxX = maxX;
+        boundingBox.boundingBox.maxY = maxY;
+        return boundingBox;
+    }
     public getBoundingBoxArea(): number {
         return this.calculateBoundingBoxArea(this.boundingBox);
     }
