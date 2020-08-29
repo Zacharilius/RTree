@@ -54,7 +54,6 @@ export default class RTree {
         // If currentNode has space
         if (currentNodeChildren.length < this.maxEntries) {
             // children is empty or they are leaf nodes,
-            console.log('currentNode.childrenAreLeafNodes()', currentNode.childrenAreLeafNodes());
             if (currentNode.childrenAreLeafNodes()) {
                 currentNode.insert(newNode);
                 return
