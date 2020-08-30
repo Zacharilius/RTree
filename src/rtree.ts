@@ -57,12 +57,6 @@ export default class RTree {
             if (currentNode.childrenAreLeafNodes()) {
                 currentNode.insert(newNode);
                 return
-            } else {
-                // Create a new internal node and insert the LeafNode inside it.
-                const newInternalNode = new InternalNode();
-                newInternalNode.insert(newNode)
-                currentNode.insert(newInternalNode);
-                return;
             }
         }
 
@@ -79,11 +73,7 @@ export default class RTree {
             currentNode.splitChildren();
             currentNodeChildren = currentNode.getChildren();
             const firstChild = currentNodeChildren[0]
-            if (!firstChild || firstChild.isLeafNode()) {
-                throw Error('Expected node to be InternalNode');
-            }
-            this._insert(firstChild as InternalNode, newNode);
-            return;
+            return this._insert(firstChild as InternalNode, newNode);
         }
 
         // Recursively insert.
@@ -109,6 +99,6 @@ export default class RTree {
 
         // Insert in the child node that would have the least bounding box area
         // increase.
-        this._insert(boundingBoxInfos[0], newNode);
+        this._insert(boundingBoxInfos[0].node, newNode);
     }
 }
