@@ -1,5 +1,6 @@
-import { BoundingBox } from './bounding-box';
+
 import { InternalNode, LeafNode } from './node';
+import { BoundingBox } from './bounding-box';
 import { Point } from './point';
 
 export default class RTree {
@@ -17,8 +18,6 @@ export default class RTree {
         this.root = new InternalNode();
     }
 
-    // FIXME: I think search needs to search based on bounding box... and then
-    // return all points on a bounding box.
     public search (boundingBox: BoundingBox): Array<Point> {
         const foundPoints: Array<Point> = [];
         this._search(this.root, boundingBox, foundPoints);
@@ -41,6 +40,7 @@ export default class RTree {
         }
     }
 
+    // TODO: There's a bug when maxEntries is set to 1.
     public insert (point: Point): void {
         const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
         const newLeafNode = new LeafNode(point, boundingBox);

@@ -2,6 +2,7 @@ import { expect } from 'chai'
 
 import { BoundingBox } from '../src/bounding-box';
 import { Point } from '../src/point';
+import { sortPoints } from './util';
 import RTree from '../src/rtree';
 
 describe('RTree test', () => {
@@ -147,17 +148,6 @@ describe('RTree test', () => {
         });
     });
 });
-
-function sortPoints(points: Array<Point>): Array<Point> {
-    points.sort((a: Point, b: Point) => {
-        if(a.x == b.x) {
-            return (a.y < b.y) ? -1 : (a.y > b.y) ? 1 : 0;
-        } else {
-            return (a.x < b.x) ? -1 : 1;
-        }
-    });
-    return points;
-}
 
 function createTestRTree(points: Array<Point>): RTree {
     const rTree = new RTree(4);

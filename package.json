@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/Zacharilius/RTree#readme",
   "dependencies": {
+    "@types/node": "^14.6.2",
     "typescript": "^3.9.7"
   },
   "devDependencies": {
