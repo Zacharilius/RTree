@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 
 import { BoundingBox } from '../src/bounding-box';
+import { GeoJson, Feature } from '../src/geo-json';
 import { Point } from '../src/point';
 import { sortPoints } from './util';
 import RTree from '../src/rtree';
@@ -145,6 +146,57 @@ describe('RTree test', () => {
                 const expected = points;
                 expect(sortPoints(result)).to.deep.equal(sortPoints(expected));
             });
+        });
+    });
+    describe('import', () => {
+        let geoJson: GeoJson;
+        beforeEach(() => {
+            geoJson = {
+                "type": "FeatureCollection",
+                "features": [
+                  {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            0,
+                            0
+                        ]
+                    }
+                  }
+                ]
+            } as GeoJson;
+        });
+
+        it('should import geoJson correctly', () => {
+            const rTree = new RTree();
+            rTree.import(geoJson);
+            const searchBoundingBox: BoundingBox = BoundingBox.getBoundingBoxForBoundingBoxValues(
+                0,
+                0,
+                0,
+                0
+            );
+            const result = rTree.search(searchBoundingBox);
+            expect(result).to.deep.equal([{ x: 0, y: 0 }]);
+        });
+        it('should throw an error for non-point geoJson features', () => {
+            const rTree = new RTree();
+            geoJson.features.push(                  {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            } as Feature);
+
+            expect(() => rTree.import(geoJson)).to.throw();
         });
     });
 });

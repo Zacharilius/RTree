@@ -1,4 +1,5 @@
 
+import { GeoJson, GeometryType } from './geo-json';
 import { InternalNode, LeafNode } from './node';
 import { BoundingBox } from './bounding-box';
 import { Point } from './point';
@@ -100,5 +101,30 @@ export default class RTree {
         // Insert in the child node that would have the least bounding box area
         // increase.
         this._insert(boundingBoxInfos[0].node, newNode);
+    }
+
+    public import (geoJson: GeoJson): void {
+        // Sort first
+        geoJson.features.sort((aFeature, bFeature) => {
+            const x1 = aFeature.geometry.coordinates[0];
+            const x2 = bFeature.geometry.coordinates[0];
+            if (x1 < x2) {
+                return -1;
+            } else if (x1 > x2) {
+                return 1;
+            }
+            return 0;
+        });
+
+        // Insert all points.
+        geoJson.features.forEach(feature => {
+            if (feature.geometry.type !== GeometryType.Point) {
+                throw Error(`Import only supports "Point". Found type ${feature.geometry.type}`)
+            }
+            this.insert({
+                x: feature.geometry.coordinates[0],
+                y: feature.geometry.coordinates[1]
+            });
+        })
     }
 }
