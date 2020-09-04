@@ -1,5 +1,12 @@
 import { Point } from "./point";
 
+interface BoundingBoxDef {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+}
+
 export class BoundingBox {
     public readonly boundingBox: BoundingBoxDef;
 
@@ -14,7 +21,7 @@ export class BoundingBox {
 
     static getBoundingBoxForPoint (point: Point) {
         const boundingBox = new BoundingBox();
-        boundingBox.updateBoundingBoxForPoint(point);
+        boundingBox.extendBoundingBoxForPoint(point);
         return boundingBox;
     }
 
@@ -43,7 +50,7 @@ export class BoundingBox {
         return area
     }
 
-    public getBoundingBoxAreaIncreaseIfAddBoundingBox(boundingBox: BoundingBox): number {
+    public getBoundingBoxAreaIfExtended(boundingBox: BoundingBox): number {
         const beforeArea = this.getBoundingBoxArea();
         const newBoundingBoxAfterMerge = this.mergeBoundingBoxes(this.boundingBox, boundingBox.boundingBox);
         const areaAfter = this.calculateBoundingBoxArea(newBoundingBoxAfterMerge);
@@ -65,14 +72,14 @@ export class BoundingBox {
         )
     }
 
-    public updateBoundingBoxForPoint (point: Point): void {
+    public extendBoundingBoxForPoint (point: Point): void {
         this.boundingBox.minX = Math.min(this.boundingBox.minX, point.x);
         this.boundingBox.minY = Math.min(this.boundingBox.minY, point.y);
         this.boundingBox.maxX = Math.max(this.boundingBox.maxX, point.x);
         this.boundingBox.maxY = Math.max(this.boundingBox.maxY, point.y);
     }
 
-    public updateBoundingBoxForBoundingBox (boundingBox: BoundingBox): void {
+    public extendBoundingBoxForBoundingBox (boundingBox: BoundingBox): void {
         const mergeBoundingBox = this.mergeBoundingBoxes(this.boundingBox, boundingBox.boundingBox);
         this.boundingBox.minX = mergeBoundingBox.minX;
         this.boundingBox.minY = mergeBoundingBox.minY;
@@ -88,11 +95,4 @@ export class BoundingBox {
             maxY: Math.max(boundingBoxDef1.maxY, boundingBoxDef2.maxY),
         } as BoundingBoxDef
     }
-}
-
-interface BoundingBoxDef {
-    minX: number;
-    minY: number;
-    maxX: number;
-    maxY: number;
 }

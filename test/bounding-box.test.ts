@@ -54,7 +54,7 @@ describe('BoundingBox test', () => {
                 x: 5,
                 y: 10
             };
-            boundingBox.updateBoundingBoxForPoint(point2)
+            boundingBox.extendBoundingBoxForPoint(point2)
             expect(boundingBox.getBoundingBoxArea()).to.equal(25);
         });
     });
@@ -65,7 +65,7 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 0
             });
-            boundingBox.updateBoundingBoxForPoint({
+            boundingBox.extendBoundingBoxForPoint({
                 x: 100,
                 y: 100
             });
@@ -74,7 +74,7 @@ describe('BoundingBox test', () => {
                 x: 25,
                 y: 25
             });
-            targetBoundingBox.updateBoundingBoxForPoint({
+            targetBoundingBox.extendBoundingBoxForPoint({
                 x: 50,
                 y: 50
             });
@@ -85,7 +85,7 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 0
             });
-            boundingBox.updateBoundingBoxForPoint({
+            boundingBox.extendBoundingBoxForPoint({
                 x: 100,
                 y: 100
             });
@@ -94,7 +94,7 @@ describe('BoundingBox test', () => {
                 x: 75,
                 y: 75
             });
-            targetBoundingBox.updateBoundingBoxForPoint({
+            targetBoundingBox.extendBoundingBoxForPoint({
                 x: 125,
                 y: 125
             });
@@ -105,7 +105,7 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 0
             });
-            boundingBox.updateBoundingBoxForPoint({
+            boundingBox.extendBoundingBoxForPoint({
                 x: 100,
                 y: 100
             });
@@ -114,7 +114,7 @@ describe('BoundingBox test', () => {
                 x: 101,
                 y: 101
             });
-            targetBoundingBox.updateBoundingBoxForPoint({
+            targetBoundingBox.extendBoundingBoxForPoint({
                 x: 125,
                 y: 125
             });
@@ -123,7 +123,7 @@ describe('BoundingBox test', () => {
         });
     });
 
-    describe('getBoundingBoxAreaIncreaseIfAddBoundingBox', () => {
+    describe('getBoundingBoxAreaIfExtended', () => {
         it('should calculate correctly if point is outside of the current bounding box', () => {
             const point: Point = {
                 x: 0,
@@ -134,7 +134,7 @@ describe('BoundingBox test', () => {
                 x: 50,
                 y: 50
             };
-            boundingBox.updateBoundingBoxForPoint(point2);
+            boundingBox.extendBoundingBoxForPoint(point2);
 
             const pointOutsideOtherBoundingBox: Point = {
                 x: 55,
@@ -142,7 +142,7 @@ describe('BoundingBox test', () => {
             };
             const boundingBox2 = BoundingBox.getBoundingBoxForPoint(pointOutsideOtherBoundingBox);
 
-            expect(boundingBox.getBoundingBoxAreaIncreaseIfAddBoundingBox(boundingBox2)).to.equal(500);
+            expect(boundingBox.getBoundingBoxAreaIfExtended(boundingBox2)).to.equal(500);
         });
         it('should calculate correctly if point is inside of the current bounding box', () => {
             const point: Point = {
@@ -154,7 +154,7 @@ describe('BoundingBox test', () => {
                 x: 50,
                 y: 50
             };
-            boundingBox.updateBoundingBoxForPoint(point2);
+            boundingBox.extendBoundingBoxForPoint(point2);
 
             const pointOutsideOtherBoundingBox: Point = {
                 x: 22,
@@ -162,11 +162,11 @@ describe('BoundingBox test', () => {
             };
             const boundingBox2 = BoundingBox.getBoundingBoxForPoint(pointOutsideOtherBoundingBox);
 
-            expect(boundingBox.getBoundingBoxAreaIncreaseIfAddBoundingBox(boundingBox2)).to.equal(0);
+            expect(boundingBox.getBoundingBoxAreaIfExtended(boundingBox2)).to.equal(0);
         });
     });
 
-    describe('updateBoundingBoxForPoint', () => {
+    describe('extendBoundingBoxForPoint', () => {
         let boundingBox: BoundingBox;
         beforeEach(() => {
             boundingBox = new BoundingBox();
@@ -176,7 +176,7 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(point);
+            boundingBox.extendBoundingBoxForPoint(point);
             expect(boundingBox.boundingBox.minX).to.equal(point.x);
             expect(boundingBox.boundingBox.minY).to.equal(point.y);
             expect(boundingBox.boundingBox.minX).to.equal(point.x);
@@ -188,13 +188,13 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(initPoint);
+            boundingBox.extendBoundingBoxForPoint(initPoint);
 
             const pointWithSmallerX: Point = {
                 x: -1,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(pointWithSmallerX);
+            boundingBox.extendBoundingBoxForPoint(pointWithSmallerX);
             expect(boundingBox.boundingBox.minX).to.equal(pointWithSmallerX.x);
             expect(boundingBox.boundingBox.maxX).to.equal(initPoint.x);
         });
@@ -203,13 +203,13 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(initPoint);
+            boundingBox.extendBoundingBoxForPoint(initPoint);
 
             const pointWithLargerX: Point = {
                 x: 5,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(pointWithLargerX);
+            boundingBox.extendBoundingBoxForPoint(pointWithLargerX);
             expect(boundingBox.boundingBox.minX).to.equal(initPoint.x);
             expect(boundingBox.boundingBox.maxX).to.equal(pointWithLargerX.x);
         });
@@ -218,13 +218,13 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(initPoint);
+            boundingBox.extendBoundingBoxForPoint(initPoint);
 
             const pointWithSmallerY: Point = {
                 x: 0,
                 y: 4
             };
-            boundingBox.updateBoundingBoxForPoint(pointWithSmallerY);
+            boundingBox.extendBoundingBoxForPoint(pointWithSmallerY);
             expect(boundingBox.boundingBox.minY).to.equal(pointWithSmallerY.y);
             expect(boundingBox.boundingBox.maxY).to.equal(initPoint.y);
         });
@@ -233,18 +233,18 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(initPoint);
+            boundingBox.extendBoundingBoxForPoint(initPoint);
 
             const pointWithLargerY: Point = {
                 x: 0,
                 y: 6
             };
-            boundingBox.updateBoundingBoxForPoint(pointWithLargerY);
+            boundingBox.extendBoundingBoxForPoint(pointWithLargerY);
             expect(boundingBox.boundingBox.minY).to.equal(initPoint.y);
             expect(boundingBox.boundingBox.maxY).to.equal(pointWithLargerY.y);
         });
     });
-    describe('updateBoundingBoxForBoundingBox', () => {
+    describe('extendBoundingBoxForBoundingBox', () => {
         let boundingBox: BoundingBox;
         beforeEach(() => {
             boundingBox = new BoundingBox();
@@ -261,7 +261,7 @@ describe('BoundingBox test', () => {
                 y: 5
             };
             const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForPoint(pointWithSmallerX);
-            boundingBox.updateBoundingBoxForBoundingBox(boundingBox2);
+            boundingBox.extendBoundingBoxForBoundingBox(boundingBox2);
 
             expect(boundingBox.boundingBox.minX).to.equal(pointWithSmallerX.x);
             expect(boundingBox.boundingBox.maxX).to.equal(initPoint.x);
@@ -271,14 +271,14 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(initPoint);
+            boundingBox.extendBoundingBoxForPoint(initPoint);
 
             const pointWithLargerX: Point = {
                 x: 5,
                 y: 5
             };
             const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForPoint(pointWithLargerX);
-            boundingBox.updateBoundingBoxForBoundingBox(boundingBox2);
+            boundingBox.extendBoundingBoxForBoundingBox(boundingBox2);
 
             expect(boundingBox.boundingBox.minX).to.equal(initPoint.x);
             expect(boundingBox.boundingBox.maxX).to.equal(pointWithLargerX.x);
@@ -288,14 +288,14 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(initPoint);
+            boundingBox.extendBoundingBoxForPoint(initPoint);
 
             const pointWithSmallerY: Point = {
                 x: 0,
                 y: 4
             };
             const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForPoint(pointWithSmallerY);
-            boundingBox.updateBoundingBoxForBoundingBox(boundingBox2);
+            boundingBox.extendBoundingBoxForBoundingBox(boundingBox2);
 
             expect(boundingBox.boundingBox.minY).to.equal(pointWithSmallerY.y);
             expect(boundingBox.boundingBox.maxY).to.equal(initPoint.y);
@@ -305,14 +305,14 @@ describe('BoundingBox test', () => {
                 x: 0,
                 y: 5
             };
-            boundingBox.updateBoundingBoxForPoint(initPoint);
+            boundingBox.extendBoundingBoxForPoint(initPoint);
 
             const pointWithLargerY: Point = {
                 x: 0,
                 y: 6
             };
             const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForPoint(pointWithLargerY);
-            boundingBox.updateBoundingBoxForBoundingBox(boundingBox2);
+            boundingBox.extendBoundingBoxForBoundingBox(boundingBox2);
 
             expect(boundingBox.boundingBox.minY).to.equal(initPoint.y);
             expect(boundingBox.boundingBox.maxY).to.equal(pointWithLargerY.y);
