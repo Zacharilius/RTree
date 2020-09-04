@@ -1,6 +1,7 @@
 import { expect } from 'chai'
+import fs from 'fs';
 
-import { getParkBenchGeoJson, SeattleParkBenchGeoJson } from './data/seattle-park-benches';
+import { GeoJson } from '../src/geo-json';
 import { Point } from '../src/point';
 import RTree from '../src/rtree';
 import { BoundingBox } from '../src/bounding-box';
@@ -13,19 +14,13 @@ describe('RTree: ParkBenchGeoJson test', () => {
         rTree = new RTree(4);
 
         seattleParkBenches = new SeattleParkBenches();
-        seattleParkBenches.getParkBenchesGeoJson().features.forEach((parkBencheFeature) => {
-            const coordinates = parkBencheFeature.geometry.coordinates;
-            const x: number = coordinates[0];
-            const y: number = coordinates[1];
-            const point: Point = { x, y };
-            rTree.insert(point);
-        });
+        rTree.import(seattleParkBenches.getParkBenchesGeoJson());
     });
 
     it('passing in bounding box with all park benches returns all points', () => {
         const boundingBox: BoundingBox = seattleParkBenches.getParkBenchBoundingBox();
-        const result = rTree.search(boundingBox);
 
+        const result = rTree.search(boundingBox);
         const expected: Array<Point> = seattleParkBenches.getParkBenchCoordinatesPoints();
         expect(sortPoints(result)).to.deep.equal(sortPoints(expected));
     });
@@ -84,7 +79,7 @@ describe('RTree: ParkBenchGeoJson test', () => {
     });
 });
 
-const getPointsForBoundingBox = (parkBenches: SeattleParkBenchGeoJson, boundingBox: BoundingBox): Array<Point> => {
+const getPointsForBoundingBox = (parkBenches: GeoJson, boundingBox: BoundingBox): Array<Point> => {
     const points: Array<Point> = [];
     parkBenches.features.forEach(feature => {
         const x = feature.geometry.coordinates[0];
@@ -102,13 +97,13 @@ const getPointsForBoundingBox = (parkBenches: SeattleParkBenchGeoJson, boundingB
 }
 
 class SeattleParkBenches {
-    private parkBenches: SeattleParkBenchGeoJson;
+    private parkBenches: GeoJson;
 
     constructor () {
         this.parkBenches = getParkBenchGeoJson();
     }
 
-    public getParkBenchesGeoJson (): SeattleParkBenchGeoJson {
+    public getParkBenchesGeoJson (): GeoJson {
         return this.parkBenches;
     }
 
@@ -137,4 +132,10 @@ class SeattleParkBenches {
         });
         return BoundingBox.getBoundingBoxForBoundingBoxValues(minX, minY, maxX, maxY);
     }
+}
+
+const getParkBenchGeoJson = (): GeoJson => {
+    const rawParkBenchdata = fs.readFileSync('./test/data/seattle-park-benches.geojson', 'utf-8');
+    const seattleParkBenches: GeoJson = JSON.parse(rawParkBenchdata);
+    return seattleParkBenches;
 }
