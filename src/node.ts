@@ -63,7 +63,7 @@ export class InternalNode extends Node {
     }
 
     private updateBoundingBoxOnInsert(node: InternalNode | LeafNode) {
-        this.boundingBox.updateBoundingBoxForBoundingBox(node.boundingBox);
+        this.boundingBox.extendBoundingBoxForBoundingBox(node.boundingBox);
     }
 
     public childrenAreLeafNodes(): boolean {

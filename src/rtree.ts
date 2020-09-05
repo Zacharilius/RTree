@@ -66,7 +66,7 @@ export default class RTree {
 
         // Before inserting in the child of the current node. Update the current
         // node's bounding box.
-        currentNode.boundingBox.updateBoundingBoxForBoundingBox(newNode.boundingBox);
+        currentNode.boundingBox.extendBoundingBoxForBoundingBox(newNode.boundingBox);
 
         // The all nodes are leaf nodes and node is full then split each child
         // leaf node into its own internal node.
@@ -83,7 +83,7 @@ export default class RTree {
         const boundingBoxInfos: Array<any> = currentNodeChildren.map((node: InternalNode) => {
             return {
                 node: node,
-                area: node.boundingBox.getBoundingBoxAreaIncreaseIfAddBoundingBox(newNode.boundingBox)
+                area: node.boundingBox.getBoundingBoxAreaIfExtended(newNode.boundingBox)
             };
         });
 
