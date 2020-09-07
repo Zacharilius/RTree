@@ -1,5 +1,5 @@
 
-import { GeoJson, GeometryType } from './geo-json';
+import * as geojson from 'geojson';
 import { InternalNode, LeafNode } from './node';
 import { BoundingBox } from './bounding-box';
 import { Point } from './point';
@@ -19,32 +19,33 @@ export default class RTree {
         this.root = new InternalNode();
     }
 
-    public search (boundingBox: BoundingBox): Array<Point> {
-        const foundPoints: Array<Point> = [];
-        this._search(this.root, boundingBox, foundPoints);
-        return foundPoints;
+    public search (boundingBox: BoundingBox): Array<geojson.Feature> {
+        const foundFeatures: Array<geojson.Feature> = [];
+        this._search(this.root, boundingBox, foundFeatures);
+        return foundFeatures;
     }
 
-    private _search (node: InternalNode | LeafNode, boundingBox: BoundingBox, foundPoints: Array<Point>) {
+    private _search (node: InternalNode | LeafNode, boundingBox: BoundingBox, foundFeatures: Array<geojson.Feature>) {
         if (node.isLeafNode()) {
             node = node as LeafNode
             if (node.boundingBox.isBoundingBoxInBoundingBox(boundingBox)) {
-                foundPoints.push(node.getData());
+                foundFeatures.push(node.getFeature());
             }
         } else {
             node = node as InternalNode
             node.getChildren().forEach((childNode: InternalNode | LeafNode) => {
                 if (childNode.boundingBox.isBoundingBoxInBoundingBox(boundingBox)) {
-                    this._search(childNode, boundingBox, foundPoints);
+                    this._search(childNode, boundingBox, foundFeatures);
                 }
             });
         }
     }
 
     // TODO: There's a bug when maxEntries is set to 1.
-    public insert (point: Point): void {
-        const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
-        const newLeafNode = new LeafNode(point, boundingBox);
+    public insert (feature: geojson.Feature): void {
+        // const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
+        const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(feature);
+        const newLeafNode = new LeafNode(feature, boundingBox);
 
         // Recursively find the best position
         this._insert(this.root, newLeafNode)
@@ -103,28 +104,22 @@ export default class RTree {
         this._insert(boundingBoxInfos[0].node, newNode);
     }
 
-    public import (geoJson: GeoJson): void {
-        // Sort first
-        geoJson.features.sort((aFeature, bFeature) => {
-            const x1 = aFeature.geometry.coordinates[0];
-            const x2 = bFeature.geometry.coordinates[0];
-            if (x1 < x2) {
-                return -1;
-            } else if (x1 > x2) {
-                return 1;
-            }
-            return 0;
-        });
+    public import (geoJson: geojson.FeatureCollection): void {
+        // TODO: Sorting can have performance imporovements;
+        // geoJson.features.sort((aFeature, bFeature) => {
+        //     const x1 = aFeature.geometry.coordinates[0];
+        //     const x2 = bFeature.geometry.coordinates[0];
+        //     if (x1 < x2) {
+        //         return -1;
+        //     } else if (x1 > x2) {
+        //         return 1;
+        //     }
+        //     return 0;
+        // });
 
         // Insert all points.
         geoJson.features.forEach(feature => {
-            if (feature.geometry.type !== GeometryType.Point) {
-                throw Error(`Import only supports "Point". Found type ${feature.geometry.type}`)
-            }
-            this.insert({
-                x: feature.geometry.coordinates[0],
-                y: feature.geometry.coordinates[1]
-            });
+            this.insert(feature);
         })
     }
 }

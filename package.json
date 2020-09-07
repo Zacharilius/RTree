@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint -c .eslintrc.js src/**/*.ts test/**/*.ts --quiet",
-    "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
+    "test": "mocha --require ts-node/register test/**/*.test.ts",
+    "test:coverage": "nyc npm run test",
     "verify": "npm run lint && npm run test"
   },
   "repository": {
@@ -28,6 +29,7 @@
   },
   "homepage": "https://github.com/Zacharilius/RTree#readme",
   "dependencies": {
+    "@types/geojson": "^7946.0.7",
     "@types/node": "^14.6.2",
     "typescript": "^3.9.7"
   },

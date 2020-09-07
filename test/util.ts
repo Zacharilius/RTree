@@ -1,12 +1,19 @@
-import { Point } from '../src/point';
+import * as geojson from 'geojson';
 
-export const sortPoints = (points: Array<Point>): Array<Point> => {
-    points.sort((a: Point, b: Point) => {
-        if(a.x == b.x) {
-            return (a.y < b.y) ? -1 : (a.y > b.y) ? 1 : 0;
+export const sortPoints = (pointGeometries: Array<geojson.Geometry>): Array<geojson.Geometry> => {
+    pointGeometries.sort((a: any, b: any) => {
+        a = a as geojson.Point;
+        b = b as geojson.Point;
+        const aX = a.coordinates[0];
+        const bX = b.coordinates[0];
+        const aY = a.coordinates[0];
+        const bY = b.coordinates[0];
+
+        if(aX == bX) {
+            return (aY < bY) ? -1 : (aY > bY) ? 1 : 0;
         } else {
-            return (a.x < b.x) ? -1 : 1;
+            return (aX < bX) ? -1 : 1;
         }
     });
-    return points;
+    return pointGeometries;
 }
