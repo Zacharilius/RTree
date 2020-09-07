@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 
 import { BoundingBox } from '../src/bounding-box';
+// TODO: Remove
 import { Point } from '../src/point';
 
 describe('BoundingBox test', () => {

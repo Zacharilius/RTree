@@ -2,7 +2,6 @@
 import * as geojson from 'geojson';
 import { InternalNode, LeafNode } from './node';
 import { BoundingBox } from './bounding-box';
-import { Point } from './point';
 
 export default class RTree {
     // Max width of node before split

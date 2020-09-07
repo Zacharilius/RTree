@@ -80,6 +80,7 @@ export class BoundingBox {
         )
     }
 
+    // TODO: Remove
     public extendBoundingBoxForPoint (point: Point): void {
         this.boundingBox.minX = Math.min(this.boundingBox.minX, point.x);
         this.boundingBox.minY = Math.min(this.boundingBox.minY, point.y);
@@ -96,7 +97,6 @@ export class BoundingBox {
         let maxX: number;
         let maxY: number;
         // if (geometry.type === 'Point') {
-            // geometry = <GeoJSONF.Point>geometry;
             geometry = geometry as geojson.Point;
             minX = geometry.coordinates[0];
             minY = geometry.coordinates[1];
