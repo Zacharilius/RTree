@@ -1,5 +1,5 @@
+import * as geojson from 'geojson';
 import { BoundingBox } from './bounding-box';
-import { Point } from './point';
 
 abstract class Node {
     boundingBox: BoundingBox;
@@ -84,18 +84,18 @@ export class InternalNode extends Node {
 }
 
 export class LeafNode extends Node {
-    private data: Point;
+    private feature: geojson.Feature;
 
-    constructor (data: Point, boundingBox: BoundingBox) {
+    constructor (feature: geojson.Feature, boundingBox: BoundingBox) {
         super(boundingBox);
-        this.data = data;
+        this.feature = feature;
     }
 
     public isLeafNode () {
         return true;
     }
 
-    public getData () {
-        return this.data;
+    public getFeature () {
+        return this.feature;
     }
 }

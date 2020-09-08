@@ -2,7 +2,7 @@ import { expect } from 'chai'
 
 import { BoundingBox } from '../src/bounding-box';
 import { InternalNode, LeafNode } from '../src/node';
-import { Point } from '../src/point';
+import * as geojson from 'geojson';
 
 describe('Node test', () => {
     describe('LeafNode', () => {
@@ -13,12 +13,19 @@ describe('Node test', () => {
                 expect(leafNode.isLeafNode()).to.be.true;
             });
         });
-        describe('getData', () => {
+        describe('getFeature', () => {
             it('returns the correct data', () => {
                 const x: number = 22;
                 const y: number = 33;
                 const leafNode = createLeafNode(x, y);
-                expect(leafNode.getData()).to.deep.equal({ x, y });
+                expect(leafNode.getFeature()).to.deep.equal({
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: [x, y]
+                    },
+                    properties: {}
+                });
             });
         });
     });
@@ -108,10 +115,14 @@ describe('Node test', () => {
 });
 
 const createLeafNode = (x: number = 5, y: number = 10): LeafNode => {
-    const point: Point = {
-        x,
-        y
+    const pointFeature: geojson.Feature<geojson.Point> = {
+        type: "Feature",
+        geometry: {
+            type: "Point",
+            coordinates: [x, y]
+        },
+        properties: {}
     };
     const boundingBox = new BoundingBox();
-    return new LeafNode(point, boundingBox);
+    return new LeafNode(pointFeature, boundingBox);
 }

@@ -21,6 +21,8 @@ module.exports = {
         "@typescript-eslint",
     ],
     "rules": {
+        "quote-props": ["error", "as-needed"],
+        "quotes": [2, "single", { "avoidEscape": true }],
         "sort-imports": "error",
         "no-unused-vars": 0,  // eslint flags imported types as unused variables.
         "no-trailing-spaces": "error"
