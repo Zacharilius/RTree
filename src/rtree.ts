@@ -42,7 +42,6 @@ export default class RTree {
 
     // TODO: There's a bug when maxEntries is set to 1.
     public insert (feature: geojson.Feature): void {
-        // const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
         const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(feature);
         const newLeafNode = new LeafNode(feature, boundingBox);
 
@@ -51,6 +50,10 @@ export default class RTree {
     }
 
     private _insert (currentNode: InternalNode, newNode: LeafNode): void {
+        // Before inserting in the child of the current node. Update the current
+        // node's bounding box.
+        currentNode.boundingBox.extendBoundingBoxForBoundingBox(newNode.boundingBox);
+
         let currentNodeChildren: Array<InternalNode> | Array<LeafNode> = currentNode.getChildren();
         // If currentNode has space
         if (currentNodeChildren.length < this.maxEntries) {
@@ -63,10 +66,6 @@ export default class RTree {
 
         // TODO: Verify if the bounding box is being updated everywhere it needs
         // to be updated.
-
-        // Before inserting in the child of the current node. Update the current
-        // node's bounding box.
-        currentNode.boundingBox.extendBoundingBoxForBoundingBox(newNode.boundingBox);
 
         // The all nodes are leaf nodes and node is full then split each child
         // leaf node into its own internal node.
