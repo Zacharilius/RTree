@@ -1,8 +1,6 @@
 import { expect } from 'chai'
-
+import * as geojson from 'geojson';
 import { BoundingBox } from '../src/bounding-box';
-// TODO: Remove
-import { Point } from '../src/point';
 
 describe('BoundingBox test', () => {
     describe('constructor', () => {
@@ -16,17 +14,16 @@ describe('BoundingBox test', () => {
                 maxY: -Infinity,
             });
         });
-        it('can create with getBoundingBoxForPoint constructor', () => {
-            const point: Point = {
-                x: 0,
-                y: 5
-            };
-            const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(point);
+        it('can create with getBoundingBoxForGeoJSONFeature constructor', () => {
+            const x: number = 0;
+            const y: number = 5;
+            const point = getFeaturePoint(x, y);
+            const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(point);
             expect(boundingBox.boundingBox).to.deep.equal({
-                minX: point.x,
-                minY: point.y,
-                maxX: point.x,
-                maxY: point.y,
+                minX: x,
+                minY: y,
+                maxX: x,
+                maxY: y,
             });
         });
     });
@@ -36,89 +33,44 @@ describe('BoundingBox test', () => {
             const boundingBox = new BoundingBox();
             expect(boundingBox.getBoundingBoxArea()).to.equal(0);
         });
-        it('should calculate correctly on getBoundingBoxForPoint constructor init', () => {
-            const point: Point = {
-                x: 0,
-                y: 5
-            };
-            const boundingBox = BoundingBox.getBoundingBoxForPoint(point);
+        it('should calculate correctly on getBoundingBoxForGeoJSONFeature constructor init', () => {
+            const point = getFeaturePoint(0, 5);
+            const boundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(point);
             expect(boundingBox.getBoundingBoxArea()).to.equal(0);
         });
         it('should calculate correctly on for bounding box', () => {
-            const point: Point = {
-                x: 0,
-                y: 5
-            };
-            const boundingBox = BoundingBox.getBoundingBoxForPoint(point);
+            const point = getFeaturePoint(0, 5);
+            const boundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(point);
 
-            const point2: Point = {
-                x: 5,
-                y: 10
-            };
-            boundingBox.extendBoundingBoxForPoint(point2)
+            const point2 = getFeaturePoint(5, 10);
+            boundingBox.extendBoundingBoxForGeoJSONFeature(point2)
             expect(boundingBox.getBoundingBoxArea()).to.equal(25);
         });
     });
 
     describe('isBoundingBoxInBoundingBox', () => {
         it('should return true if bounding box is entirely inside.', () => {
-            const boundingBox = BoundingBox.getBoundingBoxForPoint({
-                x: 0,
-                y: 0
-            });
-            boundingBox.extendBoundingBoxForPoint({
-                x: 100,
-                y: 100
-            });
+            const boundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(getFeaturePoint(0, 0));
+            boundingBox.extendBoundingBoxForGeoJSONFeature(getFeaturePoint(100, 100));
 
-            const targetBoundingBox = BoundingBox.getBoundingBoxForPoint({
-                x: 25,
-                y: 25
-            });
-            targetBoundingBox.extendBoundingBoxForPoint({
-                x: 50,
-                y: 50
-            });
+            const targetBoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(getFeaturePoint(25, 25));
+            targetBoundingBox.extendBoundingBoxForGeoJSONFeature(getFeaturePoint(50, 50));
             expect(boundingBox.isBoundingBoxInBoundingBox(targetBoundingBox)).to.be.true;
         });
         it('should return true if bounding box is partially inside.', () => {
-            const boundingBox = BoundingBox.getBoundingBoxForPoint({
-                x: 0,
-                y: 0
-            });
-            boundingBox.extendBoundingBoxForPoint({
-                x: 100,
-                y: 100
-            });
+            const boundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(getFeaturePoint(0, 0));
+            boundingBox.extendBoundingBoxForGeoJSONFeature(getFeaturePoint(100, 100));
 
-            const targetBoundingBox = BoundingBox.getBoundingBoxForPoint({
-                x: 75,
-                y: 75
-            });
-            targetBoundingBox.extendBoundingBoxForPoint({
-                x: 125,
-                y: 125
-            });
+            const targetBoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(getFeaturePoint(75, 75));
+            targetBoundingBox.extendBoundingBoxForGeoJSONFeature(getFeaturePoint(125, 125));
             expect(boundingBox.isBoundingBoxInBoundingBox(targetBoundingBox)).to.be.true;
         });
         it('should return false if bounding box is entire outside.', () => {
-            const boundingBox = BoundingBox.getBoundingBoxForPoint({
-                x: 0,
-                y: 0
-            });
-            boundingBox.extendBoundingBoxForPoint({
-                x: 100,
-                y: 100
-            });
+            const boundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(getFeaturePoint(0, 0));
+            boundingBox.extendBoundingBoxForGeoJSONFeature(getFeaturePoint(100, 100));
 
-            const targetBoundingBox = BoundingBox.getBoundingBoxForPoint({
-                x: 101,
-                y: 101
-            });
-            targetBoundingBox.extendBoundingBoxForPoint({
-                x: 125,
-                y: 125
-            });
+            const targetBoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(getFeaturePoint(101, 101));
+            targetBoundingBox.extendBoundingBoxForGeoJSONFeature(getFeaturePoint(125, 125));
 
             expect(boundingBox.isBoundingBoxInBoundingBox(targetBoundingBox)).to.be.false;
         });
@@ -126,123 +78,208 @@ describe('BoundingBox test', () => {
 
     describe('getBoundingBoxAreaIfExtended', () => {
         it('should calculate correctly if point is outside of the current bounding box', () => {
-            const point: Point = {
-                x: 0,
-                y: 5
-            };
-            const boundingBox = BoundingBox.getBoundingBoxForPoint(point);
-            const point2: Point = {
-                x: 50,
-                y: 50
-            };
-            boundingBox.extendBoundingBoxForPoint(point2);
+            const point = getFeaturePoint(0, 5);
+            const boundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(point);
+            const point2 = getFeaturePoint(50, 50);
+            boundingBox.extendBoundingBoxForGeoJSONFeature(point2);
 
-            const pointOutsideOtherBoundingBox: Point = {
-                x: 55,
-                y: 55
-            };
-            const boundingBox2 = BoundingBox.getBoundingBoxForPoint(pointOutsideOtherBoundingBox);
+            const pointOutsideOtherBoundingBox = getFeaturePoint(55, 55);
+            const boundingBox2 = BoundingBox.getBoundingBoxForGeoJSONFeature(pointOutsideOtherBoundingBox);
 
             expect(boundingBox.getBoundingBoxAreaIfExtended(boundingBox2)).to.equal(500);
         });
         it('should calculate correctly if point is inside of the current bounding box', () => {
-            const point: Point = {
-                x: 0,
-                y: 5
-            };
-            const boundingBox = BoundingBox.getBoundingBoxForPoint(point);
-            const point2: Point = {
-                x: 50,
-                y: 50
-            };
-            boundingBox.extendBoundingBoxForPoint(point2);
+            const point = getFeaturePoint(0, 5);
+            const boundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(point);
+            const point2 = getFeaturePoint(50, 50);
+            boundingBox.extendBoundingBoxForGeoJSONFeature(point2);
 
-            const pointOutsideOtherBoundingBox: Point = {
-                x: 22,
-                y: 22
-            };
-            const boundingBox2 = BoundingBox.getBoundingBoxForPoint(pointOutsideOtherBoundingBox);
+            const pointOutsideOtherBoundingBox = getFeaturePoint(22, 22);
+            const boundingBox2 = BoundingBox.getBoundingBoxForGeoJSONFeature(pointOutsideOtherBoundingBox);
 
             expect(boundingBox.getBoundingBoxAreaIfExtended(boundingBox2)).to.equal(0);
         });
     });
 
-    describe('extendBoundingBoxForPoint', () => {
+    describe('extendBoundingBoxForGeoJSONFeature', () => {
         let boundingBox: BoundingBox;
         beforeEach(() => {
             boundingBox = new BoundingBox();
         });
-        it('should update bounding box after init', () => {
-            const point: Point = {
-                x: 0,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(point);
-            expect(boundingBox.boundingBox.minX).to.equal(point.x);
-            expect(boundingBox.boundingBox.minY).to.equal(point.y);
-            expect(boundingBox.boundingBox.minX).to.equal(point.x);
-            expect(boundingBox.boundingBox.maxY).to.equal(point.y);
+        describe('Point', () => {
+            it('should update bounding box after init', () => {
+                const point = getFeaturePoint(0, 5);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(point);
+                expect(boundingBox.boundingBox.minX).to.equal(point.geometry.coordinates[0]);
+                expect(boundingBox.boundingBox.minY).to.equal(point.geometry.coordinates[1]);
+                expect(boundingBox.boundingBox.minX).to.equal(point.geometry.coordinates[0]);
+                expect(boundingBox.boundingBox.maxY).to.equal(point.geometry.coordinates[1]);
 
+            });
+            it('should update minX and not maxX bounding box when new x is smaller', () => {
+                const initPoint = getFeaturePoint(0, 5);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(initPoint);
+
+                const pointWithSmallerX = getFeaturePoint(-1, 5);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(pointWithSmallerX);
+                expect(boundingBox.boundingBox.minX).to.equal(pointWithSmallerX.geometry.coordinates[0]);
+                expect(boundingBox.boundingBox.maxX).to.equal(initPoint.geometry.coordinates[0]);
+            });
+            it('should update maxX and not minX bounding box when new x is larger', () => {
+                const initPoint = getFeaturePoint(0, 5);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(initPoint);
+
+                const pointWithLargerX = getFeaturePoint(5, 5);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(pointWithLargerX);
+                expect(boundingBox.boundingBox.minX).to.equal(initPoint.geometry.coordinates[0]);
+                expect(boundingBox.boundingBox.maxX).to.equal(pointWithLargerX.geometry.coordinates[0]);
+            });
+            it('should update minY and not maxY bounding box when new y is smaller', () => {
+                const initPoint = getFeaturePoint(0, 5);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(initPoint);
+
+                const pointWithSmallerY = getFeaturePoint(0, 4);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(pointWithSmallerY);
+                expect(boundingBox.boundingBox.minY).to.equal(pointWithSmallerY.geometry.coordinates[1]);
+                expect(boundingBox.boundingBox.maxY).to.equal(initPoint.geometry.coordinates[1]);
+            });
+            it('should update maxY and not minY bounding box when new y is larger', () => {
+                const initPoint = getFeaturePoint(0, 5);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(initPoint);
+
+                const pointWithLargerY = getFeaturePoint(0, 6);
+                boundingBox.extendBoundingBoxForGeoJSONFeature(pointWithLargerY);
+                expect(boundingBox.boundingBox.minY).to.equal(initPoint.geometry.coordinates[1]);
+                expect(boundingBox.boundingBox.maxY).to.equal(pointWithLargerY.geometry.coordinates[1]);
+            });
         });
-        it('should update minX and not maxX bounding box when new x is smaller', () => {
-            const initPoint: Point = {
-                x: 0,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(initPoint);
-
-            const pointWithSmallerX: Point = {
-                x: -1,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(pointWithSmallerX);
-            expect(boundingBox.boundingBox.minX).to.equal(pointWithSmallerX.x);
-            expect(boundingBox.boundingBox.maxX).to.equal(initPoint.x);
+        describe('MultiPoint', () => {
+            it('should update bounding box after init', () => {
+                const minX: number = 0;
+                const minY: number = 10;
+                const maxX: number = 55;
+                const maxY: number = 22;
+                const multiPoint: geojson.Feature<geojson.MultiPoint> = {
+                    type: "Feature",
+                    geometry: {
+                        type: "MultiPoint",
+                        coordinates: [
+                            [minX, minY],
+                            [maxX, maxY]
+                        ]
+                    },
+                    properties: {}
+                };
+                boundingBox.extendBoundingBoxForGeoJSONFeature(multiPoint);
+                expect(boundingBox.boundingBox.minX).to.equal(minX);
+                expect(boundingBox.boundingBox.minY).to.equal(minY);
+                expect(boundingBox.boundingBox.maxX).to.equal(maxX);
+                expect(boundingBox.boundingBox.maxY).to.equal(maxY);
+            });
         });
-        it('should update maxX and not minX bounding box when new x is larger', () => {
-            const initPoint: Point = {
-                x: 0,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(initPoint);
-
-            const pointWithLargerX: Point = {
-                x: 5,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(pointWithLargerX);
-            expect(boundingBox.boundingBox.minX).to.equal(initPoint.x);
-            expect(boundingBox.boundingBox.maxX).to.equal(pointWithLargerX.x);
+        describe('LineString', () => {
+            it('should update bounding box after init', () => {
+                const minX: number = 0;
+                const minY: number = 10;
+                const maxX: number = 55;
+                const maxY: number = 22;
+                const multiPoint: geojson.Feature<geojson.LineString> = {
+                    type: "Feature",
+                    geometry: {
+                        type: "LineString",
+                        coordinates: [
+                            [minX, minY],
+                            [maxX, maxY]
+                        ]
+                    },
+                    properties: {}
+                };
+                boundingBox.extendBoundingBoxForGeoJSONFeature(multiPoint);
+                expect(boundingBox.boundingBox.minX).to.equal(minX);
+                expect(boundingBox.boundingBox.minY).to.equal(minY);
+                expect(boundingBox.boundingBox.maxX).to.equal(maxX);
+                expect(boundingBox.boundingBox.maxY).to.equal(maxY);
+            });
         });
-        it('should update minY and not maxY bounding box when new y is smaller', () => {
-            const initPoint: Point = {
-                x: 0,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(initPoint);
-
-            const pointWithSmallerY: Point = {
-                x: 0,
-                y: 4
-            };
-            boundingBox.extendBoundingBoxForPoint(pointWithSmallerY);
-            expect(boundingBox.boundingBox.minY).to.equal(pointWithSmallerY.y);
-            expect(boundingBox.boundingBox.maxY).to.equal(initPoint.y);
+        describe('MultiLineString', () => {
+            it('should update bounding box after init', () => {
+                const minX: number = 0;
+                const minY: number = 10;
+                const maxX: number = 55;
+                const maxY: number = 22;
+                const multiPoint: geojson.Feature<geojson.MultiLineString> = {
+                    type: "Feature",
+                    geometry: {
+                        type: "MultiLineString",
+                        coordinates: [
+                            [
+                                [minX, minY],
+                                [maxX, maxY]
+                            ]
+                        ]
+                    },
+                    properties: {}
+                };
+                boundingBox.extendBoundingBoxForGeoJSONFeature(multiPoint);
+                expect(boundingBox.boundingBox.minX).to.equal(minX);
+                expect(boundingBox.boundingBox.minY).to.equal(minY);
+                expect(boundingBox.boundingBox.maxX).to.equal(maxX);
+                expect(boundingBox.boundingBox.maxY).to.equal(maxY);
+            });
         });
-        it('should update maxY and not minY bounding box when new y is larger', () => {
-            const initPoint: Point = {
-                x: 0,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(initPoint);
-
-            const pointWithLargerY: Point = {
-                x: 0,
-                y: 6
-            };
-            boundingBox.extendBoundingBoxForPoint(pointWithLargerY);
-            expect(boundingBox.boundingBox.minY).to.equal(initPoint.y);
-            expect(boundingBox.boundingBox.maxY).to.equal(pointWithLargerY.y);
+        describe('Polygon', () => {
+            it('should update bounding box after init', () => {
+                const minX: number = 0;
+                const minY: number = 10;
+                const maxX: number = 55;
+                const maxY: number = 22;
+                const multiPoint: geojson.Feature<geojson.Polygon> = {
+                    type: "Feature",
+                    geometry: {
+                        type: "Polygon",
+                        coordinates: [
+                            [
+                                [minX, minY],
+                                [maxX, maxY]
+                            ]
+                        ]
+                    },
+                    properties: {}
+                };
+                boundingBox.extendBoundingBoxForGeoJSONFeature(multiPoint);
+                expect(boundingBox.boundingBox.minX).to.equal(minX);
+                expect(boundingBox.boundingBox.minY).to.equal(minY);
+                expect(boundingBox.boundingBox.maxX).to.equal(maxX);
+                expect(boundingBox.boundingBox.maxY).to.equal(maxY);
+            });
+        });
+        describe('MultiPolygon', () => {
+            it('should update bounding box after init', () => {
+                const minX: number = 0;
+                const minY: number = 10;
+                const maxX: number = 55;
+                const maxY: number = 22;
+                const multiPoint: geojson.Feature<geojson.MultiPolygon> = {
+                    type: "Feature",
+                    geometry: {
+                        type: "MultiPolygon",
+                        coordinates: [
+                            [
+                                [
+                                    [minX, minY],
+                                    [maxX, maxY]
+                                ]
+                            ]
+                        ]
+                    },
+                    properties: {}
+                };
+                boundingBox.extendBoundingBoxForGeoJSONFeature(multiPoint);
+                expect(boundingBox.boundingBox.minX).to.equal(minX);
+                expect(boundingBox.boundingBox.minY).to.equal(minY);
+                expect(boundingBox.boundingBox.maxX).to.equal(maxX);
+                expect(boundingBox.boundingBox.maxY).to.equal(maxY);
+            });
         });
     });
     describe('extendBoundingBoxForBoundingBox', () => {
@@ -251,72 +288,61 @@ describe('BoundingBox test', () => {
             boundingBox = new BoundingBox();
         });
         it('should update minX and not maxX bounding box when new x is smaller', () => {
-            const initPoint: Point = {
-                x: 0,
-                y: 5
-            };
-            const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForPoint(initPoint);
+            const initPoint = getFeaturePoint(0, 5);
+            const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(initPoint);
 
-            const pointWithSmallerX: Point = {
-                x: -5,
-                y: 5
-            };
-            const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForPoint(pointWithSmallerX);
+            const pointWithSmallerX = getFeaturePoint(-5, 5);
+            const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(pointWithSmallerX);
             boundingBox.extendBoundingBoxForBoundingBox(boundingBox2);
 
-            expect(boundingBox.boundingBox.minX).to.equal(pointWithSmallerX.x);
-            expect(boundingBox.boundingBox.maxX).to.equal(initPoint.x);
+            expect(boundingBox.boundingBox.minX).to.equal(pointWithSmallerX.geometry.coordinates[0]);
+            expect(boundingBox.boundingBox.maxX).to.equal(initPoint.geometry.coordinates[0]);
         });
         it('should update maxX and not minX bounding box when new x is larger', () => {
-            const initPoint: Point = {
-                x: 0,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(initPoint);
+            const initPoint = getFeaturePoint(0, 5);
+            boundingBox.extendBoundingBoxForGeoJSONFeature(initPoint);
 
-            const pointWithLargerX: Point = {
-                x: 5,
-                y: 5
-            };
-            const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForPoint(pointWithLargerX);
+            const pointWithLargerX = getFeaturePoint(5, 5);
+            const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(pointWithLargerX);
             boundingBox.extendBoundingBoxForBoundingBox(boundingBox2);
 
-            expect(boundingBox.boundingBox.minX).to.equal(initPoint.x);
-            expect(boundingBox.boundingBox.maxX).to.equal(pointWithLargerX.x);
+            expect(boundingBox.boundingBox.minX).to.equal(initPoint.geometry.coordinates[0]);
+            expect(boundingBox.boundingBox.maxX).to.equal(pointWithLargerX.geometry.coordinates[0]);
         });
         it('should update minY and not maxY bounding box when new y is smaller', () => {
-            const initPoint: Point = {
-                x: 0,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(initPoint);
+            const initPoint = getFeaturePoint(0, 5);
+            boundingBox.extendBoundingBoxForGeoJSONFeature(initPoint);
 
-            const pointWithSmallerY: Point = {
-                x: 0,
-                y: 4
-            };
-            const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForPoint(pointWithSmallerY);
+            const pointWithSmallerY = getFeaturePoint(0, 4);
+            const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(pointWithSmallerY);
             boundingBox.extendBoundingBoxForBoundingBox(boundingBox2);
 
-            expect(boundingBox.boundingBox.minY).to.equal(pointWithSmallerY.y);
-            expect(boundingBox.boundingBox.maxY).to.equal(initPoint.y);
+            expect(boundingBox.boundingBox.minY).to.equal(pointWithSmallerY.geometry.coordinates[1]);
+            expect(boundingBox.boundingBox.maxY).to.equal(initPoint.geometry.coordinates[1]);
         });
         it('should update maxY and not minY bounding box when new y is larger', () => {
-            const initPoint: Point = {
-                x: 0,
-                y: 5
-            };
-            boundingBox.extendBoundingBoxForPoint(initPoint);
+            const x = 0;
+            const y = 5;
+            const initPoint = getFeaturePoint(0, 5);
+            boundingBox.extendBoundingBoxForGeoJSONFeature(initPoint);
 
-            const pointWithLargerY: Point = {
-                x: 0,
-                y: 6
-            };
-            const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForPoint(pointWithLargerY);
+            const pointWithLargerY = getFeaturePoint(0, 6);
+            const boundingBox2: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(pointWithLargerY);
             boundingBox.extendBoundingBoxForBoundingBox(boundingBox2);
 
-            expect(boundingBox.boundingBox.minY).to.equal(initPoint.y);
-            expect(boundingBox.boundingBox.maxY).to.equal(pointWithLargerY.y);
+            expect(boundingBox.boundingBox.minY).to.equal(initPoint.geometry.coordinates[1]);
+            expect(boundingBox.boundingBox.maxY).to.equal(pointWithLargerY.geometry.coordinates[1]);
         });
     });
 });
+
+const getFeaturePoint = (x: number, y: number): geojson.Feature<geojson.Point> => {
+    return {
+        type: "Feature",
+        geometry: {
+            type: "Point",
+            coordinates: [x, y]
+        },
+        properties: {}
+    };
+}

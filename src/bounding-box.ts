@@ -1,5 +1,4 @@
 import * as geojson from 'geojson';
-import { Point } from './point';
 
 interface BoundingBoxDef {
     minX: number;
@@ -18,13 +17,6 @@ export class BoundingBox {
             maxX,
             maxY,
         };
-    }
-
-    // TODO: Remove
-    static getBoundingBoxForPoint (point: Point) {
-        const boundingBox = new BoundingBox();
-        boundingBox.extendBoundingBoxForPoint(point);
-        return boundingBox;
     }
 
     static getBoundingBoxForGeoJSONFeature (geoJSONFeature: geojson.Feature<geojson.GeometryObject>) {
@@ -80,15 +72,7 @@ export class BoundingBox {
         )
     }
 
-    // TODO: Remove
-    public extendBoundingBoxForPoint (point: Point): void {
-        this.boundingBox.minX = Math.min(this.boundingBox.minX, point.x);
-        this.boundingBox.minY = Math.min(this.boundingBox.minY, point.y);
-        this.boundingBox.maxX = Math.max(this.boundingBox.maxX, point.x);
-        this.boundingBox.maxY = Math.max(this.boundingBox.maxY, point.y);
-    }
-
-    public extendBoundingBoxForGeoJSONFeature (feature: geojson.Feature) {
+    public extendBoundingBoxForGeoJSONFeature (feature: geojson.Feature): void {
         // Set geometry to "any" type so that I can set the correct type after
         // processing the geojson feature.
         let geometry: any = feature.geometry;
@@ -96,32 +80,53 @@ export class BoundingBox {
         let minY: number;
         let maxX: number;
         let maxY: number;
+        // MultiPolygon requires 4 flattens.
+        const MAX_FLATTENS = 4;
+        let flattenedCoordinates: Array<number> = geometry.coordinates.flat(MAX_FLATTENS);
         // if (geometry.type === 'Point') {
-            geometry = geometry as geojson.Point;
-            minX = geometry.coordinates[0];
-            minY = geometry.coordinates[1];
-            maxX = geometry.coordinates[0];
-            maxY = geometry.coordinates[1];
-
+        //     // coordinates: Position
+        //     geometry = geometry as geojson.Point;
         // } else if (geometry.type === 'MultiPoint') {
+        //     // coordinates: Position[];
         //     geometry = <GeoJSON.MultiPoint>geometry;
-        //     // coordinates: Position[];
         // } else if (geometry.type === 'LineString') {
-        //     geometry = <GeoJSON.LineString>geometry;
         //     // coordinates: Position[];
+        //     geometry = <GeoJSON.LineString>geometry;
         // } else if (geometry.type === 'MultiLineString') {
+        //     // coordinates: Position[][];
         //     geometry = <GeoJSON.MultiLineString>geometry;
-        //     // coordinates: Position[][];
         // } else if (geometry.type === 'Polygon') {
-        //     geometry = <GeoJSON.Polygon>geometry;
         //     // coordinates: Position[][];
-
+        //     geometry = <GeoJSON.Polygon>geometry;
         // } else if (geometry.type === 'MultiPolygon') {
-        //     geometry = <GeoJSON.MultiPolygon>geometry;
         //     // coordinates: Position[][][];
-
+        //     geometry = <GeoJSON.MultiPolygon>geometry;
+        // } else {
+        //     throw Error(`Unexpected geojson geometry feature type ${geometry.type}`);
         // }
 
+        const xCoordinates: Array<number> = []
+        const yCoordinates: Array<number> = []
+        flattenedCoordinates.forEach((coordinate, index) => {
+            if (index % 2 === 0) {
+                xCoordinates.push(coordinate);
+            } else {
+                yCoordinates.push(coordinate);
+            }
+        });
+
+        minX = xCoordinates.reduce((a: number, b: number) => {
+            return Math.min(a, b);
+        });
+        minY = yCoordinates.reduce((a: number, b: number) => {
+            return Math.min(a, b);
+        });
+        maxX = xCoordinates.reduce((a: number, b: number) => {
+            return Math.max(a, b);
+        });
+        maxY = yCoordinates.reduce((a: number, b: number) => {
+            return Math.max(a, b);
+        });
         const boundingBox = new BoundingBox(minX, minY, maxX, maxY);
         this.extendBoundingBoxForBoundingBox(boundingBox);
     }
