@@ -1,5 +1,3 @@
-// Commented because an issue when running these tests.
-
 import { expect } from 'chai'
 import fs from 'fs';
 import * as geojson from 'geojson';
@@ -8,21 +6,21 @@ import RTree from '../src/rtree';
 import { BoundingBox } from '../src/bounding-box';
 import { sortPoints } from './util';
 
-describe('RTree: ParkBenchGeoJson test', () => {
+describe('point-seattle-park-benches', () => {
     let rTree: RTree;
-    let seattleParkBenches: SeattleParkBenches;
+    let seattleParkBenches: GeoJsonHelper;
     beforeEach(() => {
         rTree = new RTree(4);
 
-        seattleParkBenches = new SeattleParkBenches();
-        rTree.import(seattleParkBenches.getParkBenchesGeoJson());
+        seattleParkBenches = new GeoJsonHelper('point-seattle-park-benches');
+        rTree.import(seattleParkBenches.getParsedGeoJsonFeatureCollection());
     });
 
     it('passing in bounding box with all park benches returns all points', () => {
-        const boundingBox: BoundingBox = seattleParkBenches.getParkBenchBoundingBox();
+        const boundingBox: BoundingBox = seattleParkBenches.getBoundingBox();
 
-        const result = rTree.search(boundingBox) as Array<geojson.Feature<geojson.Point>>;
-        const expected: Array<geojson.Feature<geojson.Point>> = seattleParkBenches.getParkBenchCoordinatesPoints();
+        const result = rTree.search(boundingBox);
+        const expected = seattleParkBenches.getGeoJsonFeatures();
         compareResultExpected(result, expected);
     });
 
@@ -32,8 +30,8 @@ describe('RTree: ParkBenchGeoJson test', () => {
             47.62017993543422,
             -122.30437517166138,
             47.62276881594957);
-            const result = rTree.search(boundingBox) as Array<geojson.Feature<geojson.Point>>;
-        const expected: Array<geojson.Feature<geojson.Point>> = getPointsForBoundingBox(seattleParkBenches.getParkBenchesGeoJson(), boundingBox);
+            const result = rTree.search(boundingBox);
+        const expected= getPointsForBoundingBox(seattleParkBenches.getParsedGeoJsonFeatureCollection(), boundingBox);;
         compareResultExpected(result, expected);
     });
     it('passing in bounding box for Miller Park will return all park benches', () => {
@@ -43,7 +41,7 @@ describe('RTree: ParkBenchGeoJson test', () => {
             -122.31820464134216,
             47.618733577653224);
         const result = rTree.search(boundingBox) as Array<geojson.Feature<geojson.Point>>;
-        const expected: Array<geojson.Feature<geojson.Point>> = getPointsForBoundingBox(seattleParkBenches.getParkBenchesGeoJson(), boundingBox);
+        const expected = getPointsForBoundingBox(seattleParkBenches.getParsedGeoJsonFeatureCollection(), boundingBox);
         compareResultExpected(result, expected);
     });
 
@@ -54,7 +52,7 @@ describe('RTree: ParkBenchGeoJson test', () => {
             -122.3093318939209,
             47.636998137833615);
         const result = rTree.search(boundingBox) as Array<geojson.Feature<geojson.Point>>;
-        const expected: Array<geojson.Feature<geojson.Point>> = getPointsForBoundingBox(seattleParkBenches.getParkBenchesGeoJson(), boundingBox);
+        const expected = getPointsForBoundingBox(seattleParkBenches.getParsedGeoJsonFeatureCollection(), boundingBox);
         compareResultExpected(result, expected);
     });
     it('passing in bounding box for Lake Union Park will return all park benches', () => {
@@ -64,7 +62,7 @@ describe('RTree: ParkBenchGeoJson test', () => {
             -122.33340740203856,
             47.629479060181986);
         const result = rTree.search(boundingBox) as Array<geojson.Feature<geojson.Point>>;
-        const expected: Array<geojson.Feature<geojson.Point>> = getPointsForBoundingBox(seattleParkBenches.getParkBenchesGeoJson(), boundingBox);
+        const expected = getPointsForBoundingBox(seattleParkBenches.getParsedGeoJsonFeatureCollection(), boundingBox);
         compareResultExpected(result, expected);
     });
 
@@ -75,7 +73,45 @@ describe('RTree: ParkBenchGeoJson test', () => {
             -122.33201265335083,
             47.64695924930195);
         const result = rTree.search(boundingBox) as Array<geojson.Feature<geojson.Point>>;
-        const expected: Array<geojson.Feature<geojson.Point>> = getPointsForBoundingBox(seattleParkBenches.getParkBenchesGeoJson(), boundingBox);
+        const expected = getPointsForBoundingBox(seattleParkBenches.getParsedGeoJsonFeatureCollection(), boundingBox);
+        compareResultExpected(result, expected);
+    });
+});
+
+describe('multilinestring-seattle-park-trails', () => {
+    let rTree: RTree;
+    let parkTrails: GeoJsonHelper;
+    beforeEach(() => {
+        rTree = new RTree(4);
+
+        parkTrails = new GeoJsonHelper('multilinestring-seattle-park-trails');
+        rTree.import(parkTrails.getParsedGeoJsonFeatureCollection());
+    });
+
+    it('passing in bounding box with all trails returns all trails', () => {
+        const boundingBox: BoundingBox = parkTrails.getBoundingBox();
+
+        const result = rTree.search(boundingBox);
+        const expected = parkTrails.getGeoJsonFeatures();
+        compareResultExpected(result, expected);
+    });
+});
+
+describe('polygon-multipolygon-us-states-500k', () => {
+    let rTree: RTree;
+    let parkTrails: GeoJsonHelper;
+    beforeEach(() => {
+        rTree = new RTree(4);
+
+        parkTrails = new GeoJsonHelper('polygon-multipolygon-us-states-500k');
+        rTree.import(parkTrails.getParsedGeoJsonFeatureCollection());
+    });
+
+    it('passing in bounding box with all trails returns all trails', () => {
+        const boundingBox: BoundingBox = parkTrails.getBoundingBox();
+
+        const result = rTree.search(boundingBox);
+        const expected = parkTrails.getGeoJsonFeatures();
         compareResultExpected(result, expected);
     });
 });
@@ -97,35 +133,36 @@ const getPointsForBoundingBox = (parkBenches: geojson.FeatureCollection<geojson.
     return points;
 }
 
-class SeattleParkBenches {
-    private parkBenches: geojson.FeatureCollection<geojson.Point>;
+class GeoJsonHelper {
+    private geoJsonFeateCollection: geojson.FeatureCollection<geojson.Point>;
 
-    constructor () {
-        this.parkBenches = getParkBenchGeoJson();
+    constructor (geoJsonFileName: string) {
+        this.geoJsonFeateCollection = getGeoJson(geoJsonFileName) as geojson.FeatureCollection<geojson.Point>;
     }
 
-    public getParkBenchesGeoJson (): geojson.FeatureCollection<geojson.Point> {
-        return this.parkBenches;
+    public getParsedGeoJsonFeatureCollection (): geojson.FeatureCollection<geojson.Point> {
+        return this.geoJsonFeateCollection;
     }
 
-    public getParkBenchCoordinatesPoints (): Array<geojson.Feature<geojson.Point>>  {
-        const parkBenchPoints: Array<geojson.Feature<geojson.Point>> = [];
-        this.parkBenches.features.forEach(feature => {
-            parkBenchPoints.push(feature);
+    public getGeoJsonFeatures (): Array<geojson.Feature>  {
+        const features: Array<geojson.Feature> = [];
+        this.geoJsonFeateCollection.features.forEach(feature => {
+            features.push(feature);
         });
-        return parkBenchPoints;
+        return features;
     }
-    public getParkBenchBoundingBox (): BoundingBox {
+    public getBoundingBox (): BoundingBox {
         let minX: number = +Infinity;
         let minY: number = +Infinity;
         let maxX: number = -Infinity;
         let maxY: number = -Infinity;
-        this.parkBenches.features.forEach(feature => {
-            minX = Math.min(minX, feature.geometry.coordinates[0])
-            minY = Math.min(minY, feature.geometry.coordinates[1])
+        this.geoJsonFeateCollection.features.forEach(feature => {
+            const boundingBox: BoundingBox = BoundingBox.getBoundingBoxForGeoJSONFeature(feature);
 
-            maxX = Math.max(maxX, feature.geometry.coordinates[0])
-            maxY = Math.max(maxY, feature.geometry.coordinates[1])
+            minX = Math.min(minX, boundingBox.boundingBox.minX)
+            minY = Math.min(minY, boundingBox.boundingBox.minY)
+            maxX = Math.max(maxX, boundingBox.boundingBox.maxX)
+            maxY = Math.max(maxY, boundingBox.boundingBox.maxY)
         });
         return BoundingBox.getBoundingBoxForBoundingBoxValues(minX, minY, maxX, maxY);
     }
@@ -134,14 +171,13 @@ class SeattleParkBenches {
 // Comparing the list of geojson features is too difficult for mocha/chai because
 // the objects are too large for a deep compare. Instead just compare the sorted
 // geometries.
-const compareResultExpected = (result: Array<geojson.Feature<geojson.Point>>, expected: Array<geojson.Feature<geojson.Point>>): void => {
+const compareResultExpected = (result: Array<geojson.Feature>, expected: Array<geojson.Feature>): void => {
     const resultGeometry: Array<geojson.Geometry> = result.map(r => r.geometry);
     const expectedGeometry: Array<geojson.Geometry> = expected.map(r => r.geometry);
     expect(sortPoints(resultGeometry)).to.deep.equal(sortPoints(expectedGeometry));
 }
 
-const getParkBenchGeoJson = (): geojson.FeatureCollection<geojson.Point> => {
-    const rawParkBenchdata = fs.readFileSync('./test/data/seattle-park-benches.geojson', 'utf-8');
-    const seattleParkBenches: geojson.FeatureCollection<geojson.Point> = JSON.parse(rawParkBenchdata);
-    return seattleParkBenches;
+const getGeoJson = (fileName: string): geojson.FeatureCollection => {
+    const fileContents: string = fs.readFileSync(`./test/data/${fileName}.geojson`, 'utf-8');
+    return JSON.parse(fileContents) as geojson.FeatureCollection;
 }
