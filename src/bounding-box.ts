@@ -33,6 +33,7 @@ export class BoundingBox {
         boundingBox.boundingBox.maxY = maxY;
         return boundingBox;
     }
+
     public getBoundingBoxArea(): number {
         return this.calculateBoundingBoxArea(this.boundingBox);
     }
@@ -80,30 +81,10 @@ export class BoundingBox {
         let minY: number;
         let maxX: number;
         let maxY: number;
+
         // MultiPolygon requires 4 flattens.
         const MAX_FLATTENS = 4;
         let flattenedCoordinates: Array<number> = geometry.coordinates.flat(MAX_FLATTENS);
-        // if (geometry.type === 'Point') {
-        //     // coordinates: Position
-        //     geometry = geometry as geojson.Point;
-        // } else if (geometry.type === 'MultiPoint') {
-        //     // coordinates: Position[];
-        //     geometry = <GeoJSON.MultiPoint>geometry;
-        // } else if (geometry.type === 'LineString') {
-        //     // coordinates: Position[];
-        //     geometry = <GeoJSON.LineString>geometry;
-        // } else if (geometry.type === 'MultiLineString') {
-        //     // coordinates: Position[][];
-        //     geometry = <GeoJSON.MultiLineString>geometry;
-        // } else if (geometry.type === 'Polygon') {
-        //     // coordinates: Position[][];
-        //     geometry = <GeoJSON.Polygon>geometry;
-        // } else if (geometry.type === 'MultiPolygon') {
-        //     // coordinates: Position[][][];
-        //     geometry = <GeoJSON.MultiPolygon>geometry;
-        // } else {
-        //     throw Error(`Unexpected geojson geometry feature type ${geometry.type}`);
-        // }
 
         const xCoordinates: Array<number> = []
         const yCoordinates: Array<number> = []
@@ -148,3 +129,4 @@ export class BoundingBox {
         } as BoundingBoxDef
     }
 }
+
