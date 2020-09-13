@@ -1,3 +1,4 @@
-import RTree from './rtree';
+export { BoundingBox } from './bounding-box';
 
-export default RTree;
+import _RTree from './rtree';
+export const RTree = _RTree;
